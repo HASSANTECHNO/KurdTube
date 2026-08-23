@@ -60,9 +60,9 @@ class YoutubeDownload(downloadInfo: YoutubeDownloadInfo) {
         try {
             checkResponse(connection)
             connection.inputStream.use { input ->
-                copy(input, output) { progress ->
+                copy(input, output, onProgress = { progress ->
                     onProgress(progress.toLong())
-                }
+                })
             }
         } finally {
             connection.disconnect()
