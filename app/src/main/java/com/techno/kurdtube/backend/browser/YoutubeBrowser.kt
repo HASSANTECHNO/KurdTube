@@ -74,7 +74,8 @@ class YoutubeBrowser(context: Context) : WebView(context) {
         }
 
         private fun checkIfYoutube(url: Uri?): Boolean {
-            return url?.host?.endsWith("youtube.com") == true
+            val host = url?.host?.lowercase() ?: return false
+            return host == "youtube.com" || host.endsWith(".youtube.com") || host == "youtu.be"
         }
 
         override fun shouldInterceptRequest(
@@ -82,20 +83,26 @@ class YoutubeBrowser(context: Context) : WebView(context) {
             request: WebResourceRequest?
         ): WebResourceResponse? {
 
-            val browser = view as YoutubeBrowser
+            val browser = view as? YoutubeBrowser ?: return null
 
             if (browser.downloadUrl != null) {
                 return null
             }
 
-            val url = request?.url
-            val path = url?.path
-            val mime = if (url?.isHierarchical == true) url.getQueryParameter("mime") else null
-            if (path == "/videoplayback" && (mime == "audio/webm" || mime == "audio/mp4")) {
+            val url = request?.url ?: return null
+            val path = url.path ?: return null
+            val mime = if (url.isHierarchical) {
+                url.getQueryParameter("mime")?.lowercase()
+            } else {
+                null
+            }
 
+            val isVideoPlayback = path == "/videoplayback"
+            val isSupportedAudio = mime?.startsWith("audio/") == true
+
+            if (isVideoPlayback && isSupportedAudio) {
                 browser.downloadUrl = url
                 browser.checkNewDownload()
-
             }
 
             return null
@@ -104,9 +111,9 @@ class YoutubeBrowser(context: Context) : WebView(context) {
         override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
             super.doUpdateVisitedHistory(view, url, isReload)
 
-            val browser = view as YoutubeBrowser
+            val browser = view as? YoutubeBrowser ?: return
             browser.videoTitle = null
-            browser.videoUrl = Uri.parse(url)
+            browser.videoUrl = url?.let(Uri::parse)
             browser.downloadUrl = null
             browser.checkNewDownload()
         }
@@ -145,14 +152,14 @@ class YoutubeBrowser(context: Context) : WebView(context) {
                 return
             }
 
-            val browser = view as YoutubeBrowser
+            val browser = view as? YoutubeBrowser ?: return
             browser.videoTitle = updatedTitle.removeSuffix(" ")
             browser.checkNewDownload()
         }
 
         override fun onProgressChanged(view: WebView?, newProgress: Int) {
             super.onProgressChanged(view, newProgress)
-            val browser = view as YoutubeBrowser
+            val browser = view as? YoutubeBrowser ?: return
             browser.progressListener?.invoke(newProgress)
         }
 
