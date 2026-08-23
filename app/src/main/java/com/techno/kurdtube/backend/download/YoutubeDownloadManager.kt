@@ -15,10 +15,7 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
         return downloadState
     }
 
-    //
-
     private var downloadThread: Future<*>? = null
-
     private var lastFileUri: Uri? = null
 
     fun start(
@@ -35,37 +32,45 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
         downloadState.startTime = System.currentTimeMillis()
 
         downloadThread = async {
+            var uri: Uri? = null
 
-            val uri = songManager.createSong(download.fileName)
-            if (uri == null) {
-                LOG("createFile error")
-                downloadState.progressBytes = -1
-                return@async
-            }
-
-            lastFileUri = uri
-
-            val outputStream = songManager.openSongForWriting(uri)
-            if (outputStream == null) {
-                LOG("openFileForWriting error")
-                downloadState.progressBytes = -1
-                songManager.deleteSong(uri)
-                return@async
-            }
-
-            download.start(
-                outputStream = outputStream,
-                buffer = bufferBytes,
-                onProgress = { progress ->
-                    downloadState.progressBytes = progress
+            try {
+                uri = songManager.createSong(download.fileName)
+                if (uri == null) {
+                    throw IllegalStateException("createFile error")
                 }
-            )
 
-            downloadState.active = false
+                lastFileUri = uri
 
-            val song = songManager.getSingleSong(uri)
-            onSuccess(song)
+                val outputStream = songManager.openSongForWriting(uri)
+                    ?: throw IllegalStateException("openFileForWriting error")
 
+                download.start(
+                    outputStream = outputStream,
+                    buffer = bufferBytes,
+                    onProgress = { progress ->
+                        downloadState.progressBytes = progress
+                    }
+                )
+
+                downloadState.progressBytes =
+                    if (download.contentLength > 0L) download.contentLength
+                    else downloadState.progressBytes
+                downloadState.active = false
+
+                val song = songManager.getSingleSong(uri)
+                onSuccess(song)
+            } catch (error: Throwable) {
+                LOG("DOWNLOAD FAILED ${error.message}")
+                downloadState.active = false
+                downloadState.progressBytes = -1L
+
+                uri?.let { failedUri ->
+                    async {
+                        songManager.deleteSong(failedUri)
+                    }
+                }
+            }
         }
     }
 
