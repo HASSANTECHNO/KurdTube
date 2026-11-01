@@ -41,7 +41,7 @@ class PlaylistManager(context: Context, private val mediaStoreManager: MediaStor
         val files = mediaStoreManager.getFilesFromDirectory(
             filesCollection,
             playlistsDirectory,
-            playlistFileExtension
+            listOf(playlistFileExtension)
         )
         return files.map { file -> getPlaylistFromFile(file) }
     }

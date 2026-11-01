@@ -81,6 +81,7 @@ fun SettingsComponent(
                             name = settingTitle,
                             description = settingDescription,
                             options = setting.type.options,
+                            labelIds = setting.type.labelIds,
                             currentValue = settingValue,
                             onValueChange = { newValue ->
                                 onSettingChange(setting.name, newValue)
@@ -204,6 +205,7 @@ private fun SelectSettingComponent(
     name: String,
     description: String,
     options: Array<String>,
+    labelIds: IntArray?,
     currentValue: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -219,7 +221,7 @@ private fun SelectSettingComponent(
             onClick = { menuOpen = true }
         ) {
 
-            Text(text = currentValue)
+            Text(text = SelectSettingLabel(currentValue, options, labelIds))
 
             DropdownMenu(
                 expanded = menuOpen,
@@ -227,7 +229,7 @@ private fun SelectSettingComponent(
             ) {
                 options.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(option) },
+                        text = { Text(SelectSettingLabel(option, options, labelIds)) },
                         onClick = {
                             onValueChange(option)
                             menuOpen = false
@@ -239,4 +241,12 @@ private fun SelectSettingComponent(
         }
 
     }
+}
+
+/** Shows the translated label of an option, or the raw value when it has no label. */
+@Composable
+private fun SelectSettingLabel(value: String, options: Array<String>, labelIds: IntArray?): String {
+    val index = options.indexOf(value)
+    if (labelIds == null || index !in labelIds.indices) return value
+    return stringResource(id = labelIds[index])
 }

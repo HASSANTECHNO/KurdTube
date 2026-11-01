@@ -98,6 +98,17 @@
     <string name="setting_title_updates">Updates</string>
     <string name="setting_description_updates">Check for updates when the app starts.</string>
 
+    <string name="setting_title_language">Language</string>
+    <string name="setting_description_language">Choose the language of the app.</string>
+
+    <string name="setting_theme_option_auto">Auto</string>
+    <string name="setting_theme_option_dark">Dark</string>
+    <string name="setting_theme_option_light">Light</string>
+
+    <string name="language_english">English</string>
+    <string name="language_kurdish_sorani">Kurdish (Sorani)</string>
+    <string name="language_persian">Persian</string>
+
     <string name="settings_button_reset">Reset Settings</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package com.techno.kurdtube
 
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -15,6 +16,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelProvider
+import com.techno.kurdtube.backend.locale.LocaleManager
 import com.techno.kurdtube.backend.utils.LOG
 import com.techno.kurdtube.frontend.components.MainComponent
 import com.techno.kurdtube.frontend.components.currentBrowser
@@ -23,6 +25,11 @@ import com.techno.kurdtube.frontend.theme.MainTheme
 class MainActivity : ComponentActivity() {
 
     private lateinit var viewModel: MainViewModel
+
+    //applies the language that was selected in the settings to all resources of this activity
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LocaleManager.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +42,14 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             MainTheme(darkTheme = viewModel.getTheme()) {
-                MainComponent(viewModel = viewModel)
+                MainComponent(
+                    viewModel = viewModel,
+                    onLanguageChange = { languageCode ->
+                        viewModel.setLanguage(languageCode)
+                        //recreate so the new resources and layout direction are applied
+                        recreate()
+                    }
+                )
             }
 
             //lifecycle listener

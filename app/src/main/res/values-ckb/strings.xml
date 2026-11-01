@@ -1,0 +1,111 @@
+<resources>
+
+    <string name="screen_search">گەڕان</string>
+    <string name="screen_library">کتێبخانە</string>
+    <string name="screen_player">پلەیەر</string>
+    <string name="screen_settings">ڕێکخستنەکان</string>
+
+    <string name="button_download">داگرتن</string>
+
+    <string name="playlists_tab_title">لیستەکانی لێدان</string>
+    <string name="playlists_button_create">دروستکردنی لیستی لێدان</string>
+    <string name="playlists_cover">بەرگ</string>
+    <string name="playlists_empty">هیچ لیستێکی لێدان نەدۆزرایەوە.</string>
+    <string name="playlists_back">گەڕانەوە</string>
+
+    <string name="songs_tab_title">گۆرانییەکان</string>
+    <string name="songs_button_shuffleplay">لێدانی تێکەڵ</string>
+    <string name="songs_cover">بەرگ</string>
+    <string name="songs_empty">هیچ گۆرانییەک نەدۆزرایەوە.</string>
+
+    <string name="player_playpause">لێدان/وەستان</string>
+    <string name="player_previous">پێشوو</string>
+    <string name="player_next">دوایی</string>
+    <string name="player_shuffle">تێکەڵکردن</string>
+    <string name="player_repeat">دووبارەکردنەوە</string>
+
+    <string name="dialog_permissions_title">مۆڵەت پێویستە</string>
+    <string name="dialog_permissions_button_deny">ڕەتکردنەوە</string>
+    <string name="dialog_permissions_button_allow">ڕێگەدان</string>
+
+    <string name="permission_description_internet">گەڕان بۆ گۆرانی پێویستی بە مۆڵەتی %s هەیە.</string>
+    <string name="permission_description_write">داگرتنی گۆرانی پێویستی بە مۆڵەتی %s هەیە.</string>
+    <string name="permission_description_read">کردنەوەی گۆرانییە داگیراوەکان پێویستی بە مۆڵەتی %s هەیە.</string>
+    <string name="permission_description_foreground">لێدانی مۆسیقا پێویستی بە مۆڵەتی %s هەیە.</string>
+
+    <string name="toast_app_permission_request_denied">بەبێ ئەم مۆڵەتە ئەپەکە کار ناکات.</string>
+
+    <string name="dialog_file_permission_request">تکایە مۆڵەتی دەستکاریکردنی ئەم فایلە بدە.</string>
+    <string name="toast_file_permission_request_denied">بەبێ مۆڵەت ناتوانرێت ئەم فایلە دەستکاری بکرێت.</string>
+
+    <string name="dialog_download_title">داگرتن</string>
+    <string name="dialog_download_error">هەڵەیەک ڕوویدا. دووبارە هەوڵ بدەرەوە.</string>
+    <string name="dialog_download_progress">%.1f مگابایت</string>
+    <string name="dialog_download_speed">%.1f مگابایت/چرکە</string>
+    <string name="dialog_download_button_cancel">پاشگەزبوون لە داگرتن</string>
+
+    <string name="dialog_edit_song_title">دەستکاری گۆرانی</string>
+    <string name="dialog_edit_song_button_delete">سڕینەوە</string>
+    <string name="dialog_edit_song_button_save">پاشەکەوتکردن</string>
+    <string name="dialog_edit_song_label_title">ناونیشان</string>
+    <string name="dialog_edit_song_label_artist">هونەرمەند</string>
+
+    <string name="dialog_update_title">نوێکردنەوە بەردەستە</string>
+    <string name="dialog_update_button_cancel">پاشگەزبوونەوە</string>
+    <string name="dialog_update_button_download">داگرتن</string>
+    <string name="dialog_update_button_open">پیشاندان لە وێبگەڕ</string>
+    <string name="toast_update_start_download">نوێکردنەوە دادەگیرێت… ئاگادارنامە ببینە.</string>
+
+    <string name="dialog_create_playlist_title">دروستکردنی لیستی لێدان</string>
+    <string name="dialog_create_playlist_button_create">دروستکردن</string>
+    <string name="dialog_create_playlist_button_cancel">پاشگەزبوونەوە</string>
+
+    <string name="dialog_edit_playlist_title">دەستکاری لیستی لێدان</string>
+    <string name="dialog_edit_playlist_button_delete">سڕینەوە</string>
+    <string name="dialog_edit_playlist_button_save">پاشەکەوتکردن</string>
+    <string name="dialog_edit_playlist_button_cancel">پاشگەزبوونەوە</string>
+
+    <string name="dialog_createedit_playlist_label_name">ناوی لیستی لێدان</string>
+    <string name="dialog_createedit_playlist_title_selected">گۆرانییە هەڵبژێردراوەکان: %d</string>
+    <string name="dialog_createedit_playlist_button_select_all">هەموو هەڵبژێرە</string>
+
+    <string name="toast_back_button_close">دووبارە کلیک بکە بۆ داخستنی ئەپ.</string>
+    <string name="toast_coming_soon">بەم زووانە.</string>
+
+    <string name="setting_category_downloads">داگرتنەکان</string>
+    <string name="setting_category_theme">ڕەنگەکان</string>
+    <string name="setting_category_browser">وێبگەڕ</string>
+    <string name="setting_category_app">بەرنامە</string>
+
+    <string name="setting_title_playsongafterdownload">لێدانی گۆرانی دوای داگرتن</string>
+    <string name="setting_description_playsongafterdownload">هەر کە داگرتن تەواو بوو، گۆرانی لە پلەیەر دەکرێتەوە.</string>
+
+    <string name="setting_title_autodownload">داگرتنی خۆکار</string>
+    <string name="setting_description_autodownload">هەر کە کلیک لە ڤیدیۆیەک بکەیت، داگرتن دەست پێدەکات.</string>
+
+    <string name="setting_title_downloadbuffer">بەفەری داگرتن</string>
+    <string name="setting_description_downloadbuffer">گۆڕینی ئەم بەهایە لەوانەیە داگرتن خێراتر یان هێواشتر بکات (یان بە تەواوی تێکبدات). بەها بە کیلۆبایت.</string>
+
+    <string name="setting_title_theme">ڕەنگەکان</string>
+    <string name="setting_description_theme">هەڵبژاردن لە نێوان دۆخی تاریک و ڕووناک.</string>
+
+    <string name="setting_title_resetbrowser">سفرکردنەوەی وێبگەڕ</string>
+    <string name="setting_description_resetbrowser">سەرکەش و کوکییەکانی وێبگەڕ پاک بکەرەوە.</string>
+
+    <string name="setting_title_updates">نوێکردنەوەکان</string>
+    <string name="setting_description_updates">کاتێک ئەپ دەکرێتەوە، بۆ نوێکردنەوە بپشکنە.</string>
+
+    <string name="setting_title_language">زمان</string>
+    <string name="setting_description_language">زمانی ئەپ هەڵبژێرە.</string>
+
+    <string name="setting_theme_option_auto">خۆکار</string>
+    <string name="setting_theme_option_dark">تاریک</string>
+    <string name="setting_theme_option_light">ڕووناک</string>
+
+    <string name="language_english">ئینگلیزی</string>
+    <string name="language_kurdish_sorani">کوردی (سۆرانی)</string>
+    <string name="language_persian">فارسی</string>
+
+    <string name="settings_button_reset">سفرکردنەوەی ڕێکخستنەکان</string>
+
+</resources>

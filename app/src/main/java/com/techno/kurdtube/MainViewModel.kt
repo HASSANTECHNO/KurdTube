@@ -13,6 +13,8 @@ import androidx.lifecycle.AndroidViewModel
 import com.techno.kurdtube.backend.download.YoutubeDownloadInfo
 import com.techno.kurdtube.backend.download.YoutubeDownloadManager
 import com.techno.kurdtube.backend.library.LibraryManager
+import com.techno.kurdtube.backend.locale.AppLanguage
+import com.techno.kurdtube.backend.locale.LocaleManager
 import com.techno.kurdtube.backend.permission.AppPermissionManager
 import com.techno.kurdtube.backend.player.PlayerManager
 import com.techno.kurdtube.backend.screen.Screen
@@ -132,12 +134,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // language ==========================================
+
+    fun getLanguage(): AppLanguage {
+        return LocaleManager.getLanguage(getAppContext())
+    }
+
+    fun setLanguage(languageCode: String) {
+        LocaleManager.setLanguage(getAppContext(), languageCode)
+    }
+
     // other ==========================================
 
     var hasRequestedFinish by mutableStateOf(false)
 
     fun showToast(stringId: Int) {
-        showToast(getAppContext().getString(stringId))
+        //the application context has the system locale, so resolve the string with the app language
+        showToast(LocaleManager.wrap(getAppContext()).getString(stringId))
     }
 
     fun showToast(text: String) {

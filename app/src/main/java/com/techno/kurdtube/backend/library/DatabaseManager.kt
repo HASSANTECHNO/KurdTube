@@ -40,7 +40,7 @@ class DatabaseManager(context: Context, private val mediaStoreManager: MediaStor
             val files = mediaStoreManager.getFilesFromDirectory(
                 filesCollection,
                 databaseDirectory,
-                databaseQueryFile
+                listOf(databaseQueryFile)
             )
             LOG("database files: ${files.size} (${files.joinToString { it.name }})")
             database = if (files.isNotEmpty()) {

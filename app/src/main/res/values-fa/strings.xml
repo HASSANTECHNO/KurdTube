@@ -1,0 +1,111 @@
+<resources>
+
+    <string name="screen_search">جستجو</string>
+    <string name="screen_library">کتابخانه</string>
+    <string name="screen_player">پخش‌کننده</string>
+    <string name="screen_settings">تنظیمات</string>
+
+    <string name="button_download">دانلود</string>
+
+    <string name="playlists_tab_title">پلی‌لیست‌ها</string>
+    <string name="playlists_button_create">ساخت پلی‌لیست</string>
+    <string name="playlists_cover">کاور</string>
+    <string name="playlists_empty">هیچ پلی‌لیستی پیدا نشد.</string>
+    <string name="playlists_back">بازگشت</string>
+
+    <string name="songs_tab_title">آهنگ‌ها</string>
+    <string name="songs_button_shuffleplay">پخش تصادفی</string>
+    <string name="songs_cover">کاور</string>
+    <string name="songs_empty">هیچ آهنگی پیدا نشد.</string>
+
+    <string name="player_playpause">پخش/توقف</string>
+    <string name="player_previous">قبلی</string>
+    <string name="player_next">بعدی</string>
+    <string name="player_shuffle">تصادفی</string>
+    <string name="player_repeat">تکرار</string>
+
+    <string name="dialog_permissions_title">نیاز به مجوز</string>
+    <string name="dialog_permissions_button_deny">رد کردن</string>
+    <string name="dialog_permissions_button_allow">اجازه دادن</string>
+
+    <string name="permission_description_internet">جستجوی آهنگ نیاز به مجوز %s دارد.</string>
+    <string name="permission_description_write">دانلود آهنگ نیاز به مجوز %s دارد.</string>
+    <string name="permission_description_read">بارگذاری آهنگ‌های دانلود‌شده نیاز به مجوز %s دارد.</string>
+    <string name="permission_description_foreground">پخش موسیقی نیاز به مجوز %s دارد.</string>
+
+    <string name="toast_app_permission_request_denied">بدون این مجوز برنامه کار نمی‌کند.</string>
+
+    <string name="dialog_file_permission_request">لطفاً مجوز ویرایش این فایل را بدهید.</string>
+    <string name="toast_file_permission_request_denied">بدون این مجوز نمی‌توان این فایل را تغییر داد.</string>
+
+    <string name="dialog_download_title">در حال دانلود</string>
+    <string name="dialog_download_error">خطایی رخ داد. دوباره تلاش کنید.</string>
+    <string name="dialog_download_progress">%.1f مگابایت</string>
+    <string name="dialog_download_speed">%.1f مگابایت بر ثانیه</string>
+    <string name="dialog_download_button_cancel">لغو دانلود</string>
+
+    <string name="dialog_edit_song_title">ویرایش آهنگ</string>
+    <string name="dialog_edit_song_button_delete">حذف</string>
+    <string name="dialog_edit_song_button_save">ذخیره</string>
+    <string name="dialog_edit_song_label_title">عنوان</string>
+    <string name="dialog_edit_song_label_artist">هنرمند</string>
+
+    <string name="dialog_update_title">به‌روزرسانی موجود است</string>
+    <string name="dialog_update_button_cancel">لغو</string>
+    <string name="dialog_update_button_download">دانلود</string>
+    <string name="dialog_update_button_open">نمایش در مرورگر</string>
+    <string name="toast_update_start_download">در حال دانلود به‌روزرسانی… اعلان‌ها را ببینید.</string>
+
+    <string name="dialog_create_playlist_title">ساخت پلی‌لیست</string>
+    <string name="dialog_create_playlist_button_create">ساخت</string>
+    <string name="dialog_create_playlist_button_cancel">لغو</string>
+
+    <string name="dialog_edit_playlist_title">ویرایش پلی‌لیست</string>
+    <string name="dialog_edit_playlist_button_delete">حذف</string>
+    <string name="dialog_edit_playlist_button_save">ذخیره</string>
+    <string name="dialog_edit_playlist_button_cancel">لغو</string>
+
+    <string name="dialog_createedit_playlist_label_name">نام پلی‌لیست</string>
+    <string name="dialog_createedit_playlist_title_selected">آهنگ‌های انتخاب‌شده: %d</string>
+    <string name="dialog_createedit_playlist_button_select_all">انتخاب همه</string>
+
+    <string name="toast_back_button_close">برای بستن برنامه دوباره کلیک کنید.</string>
+    <string name="toast_coming_soon">به‌زودی.</string>
+
+    <string name="setting_category_downloads">دانلودها</string>
+    <string name="setting_category_theme">رنگ‌ها</string>
+    <string name="setting_category_browser">مرورگر</string>
+    <string name="setting_category_app">برنامه</string>
+
+    <string name="setting_title_playsongafterdownload">پخش آهنگ پس از دانلود</string>
+    <string name="setting_description_playsongafterdownload">به‌محض پایان دانلود، آهنگ در پخش‌کننده باز می‌شود.</string>
+
+    <string name="setting_title_autodownload">دانلود خودکار</string>
+    <string name="setting_description_autodownload">به‌محض کلیک روی یک ویدیو، دانلود شروع می‌شود.</string>
+
+    <string name="setting_title_downloadbuffer">بافر دانلود</string>
+    <string name="setting_description_downloadbuffer">تغییر این مقدار ممکن است دانلود را سریع‌تر یا کندتر کند (یا کاملاً خراب کند). مقدار به کیلوبایت.</string>
+
+    <string name="setting_title_theme">رنگ‌ها</string>
+    <string name="setting_description_theme">انتخاب بین حالت تاریک یا روشن.</string>
+
+    <string name="setting_title_resetbrowser">بازنشانی مرورگر</string>
+    <string name="setting_description_resetbrowser">پاک کردن حافظه پنهان و کوکی‌های مرورگر.</string>
+
+    <string name="setting_title_updates">به‌روزرسانی‌ها</string>
+    <string name="setting_description_updates">هنگام شروع برنامه به‌روزرسانی‌ها را بررسی کن.</string>
+
+    <string name="setting_title_language">زبان</string>
+    <string name="setting_description_language">زبان برنامه را انتخاب کنید.</string>
+
+    <string name="setting_theme_option_auto">خودکار</string>
+    <string name="setting_theme_option_dark">تیره</string>
+    <string name="setting_theme_option_light">روشن</string>
+
+    <string name="language_english">انگلیسی</string>
+    <string name="language_kurdish_sorani">کردی (سورانی)</string>
+    <string name="language_persian">فارسی</string>
+
+    <string name="settings_button_reset">بازنشانی تنظیمات</string>
+
+</resources>

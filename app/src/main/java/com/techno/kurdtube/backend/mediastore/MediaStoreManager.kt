@@ -126,12 +126,18 @@ class MediaStoreManager(context: Context) {
     fun getFilesFromDirectory(
         collection: Uri,
         directory: MediaStoreDirectory,
-        fileExtension: String = "",
+        fileExtensions: List<String> = emptyList(),
         columns: Array<String> = emptyArray()
     ): List<MediaStoreFile> {
 
-        val selection = "${MediaStore.MediaColumns.DATA} LIKE ?"
-        val selectionArgs = arrayOf("%/${directory.relativeDirectoryString}/%$fileExtension")
+        val selection = fileExtensions
+            .joinToString(separator = " OR ") { "${MediaStore.MediaColumns.DATA} LIKE ?" }
+            .ifEmpty { null }
+
+        val selectionArgs = fileExtensions
+            .map { extension -> "%/${directory.relativeDirectoryString}/%$extension" }
+            .toTypedArray()
+            .ifEmpty { null }
 
         val sortOrder = "${MediaStore.MediaColumns.DATE_MODIFIED} ASC"
 

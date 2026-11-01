@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.webkit.*
 import androidx.annotation.RequiresApi
+import com.techno.kurdtube.backend.download.YoutubeApi
 import com.techno.kurdtube.backend.download.YoutubeDownloadInfo
 import com.techno.kurdtube.backend.utils.LOG
 
@@ -34,6 +35,49 @@ class YoutubeBrowser(context: Context) : WebView(context) {
     private var videoTitle: String? = null
     private var videoUrl: Uri? = null
     private var downloadUrl: Uri? = null
+    /** Cached mimeType and contentLength from the InnerTube API resolution. */
+    private var resolvedMimeType: String? = null
+    private var resolvedContentLength: Long = -1L
+
+    /** Increases with every navigation, so an old player request is thrown away. */
+    private var resolveGeneration = 0
+
+    /**
+     * Resets the download info for the new page and asks the player API for the audio
+     * stream of a watch page. The stream is requested off the main thread and delivered
+     * back with [post], so Compose state is only touched on the UI thread.
+     */
+    fun onNavigated(url: String?) {
+        videoTitle = null
+        videoUrl = url?.let(Uri::parse)
+        downloadUrl = null
+
+        val generation = ++resolveGeneration
+        val videoId = url?.let(YoutubeApi::extractVideoId)
+
+        checkNewDownload()
+
+        if (videoId == null) return
+
+        Thread {
+            try {
+                val stream = YoutubeApi.resolveAudio(videoId)
+
+                post {
+                    if (generation != resolveGeneration) return@post
+
+                    LOG("resolved ${stream.mimeType} (${stream.contentLength} bytes)")
+                    videoTitle = stream.title
+                    downloadUrl = Uri.parse(stream.downloadUrl)
+                    resolvedMimeType = stream.mimeType
+                    resolvedContentLength = stream.contentLength
+                    checkNewDownload()
+                }
+            } catch (error: Exception) {
+                LOG("could not resolve the audio stream: ${error.message}")
+            }
+        }.start()
+    }
 
     fun checkNewDownload() {
         val finalVideoTitle = videoTitle
@@ -43,7 +87,13 @@ class YoutubeBrowser(context: Context) : WebView(context) {
             if (finalVideoTitle == null || finalVideoUrl == null || finalDownloadUrl == null)
                 null
             else
-                YoutubeDownloadInfo(finalVideoTitle, finalVideoUrl, finalDownloadUrl)
+                YoutubeDownloadInfo(
+                    finalVideoTitle,
+                    finalVideoUrl,
+                    finalDownloadUrl,
+                    /* mimeType = */ resolvedMimeType,
+                    /* contentLength = */ resolvedContentLength
+                )
         downloadListener?.invoke(downloadInfo)
     }
 
@@ -112,10 +162,7 @@ class YoutubeBrowser(context: Context) : WebView(context) {
             super.doUpdateVisitedHistory(view, url, isReload)
 
             val browser = view as? YoutubeBrowser ?: return
-            browser.videoTitle = null
-            browser.videoUrl = url?.let(Uri::parse)
-            browser.downloadUrl = null
-            browser.checkNewDownload()
+            browser.onNavigated(url)
         }
 
         @RequiresApi(Build.VERSION_CODES.M)

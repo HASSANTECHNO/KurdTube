@@ -14,8 +14,11 @@ import java.io.OutputStream
 
 class SongManager(context: Context, private val mediaStoreManager: MediaStoreManager) {
 
-    //actually .webm, but can't save audio/webm files into music directory
-    private val songFileExtension = ".mp3"
+    /**
+     * The downloaded streams are webm/opus or mp4/aac, so the file keeps the extension of
+     * its container. Older versions used .mp3 for every stream, it is still listed.
+     */
+    private val songFileExtensions = listOf(".m4a", ".webm", ".mp3")
 
     private val songDirectory = MediaStoreDirectory(
         Environment.DIRECTORY_MUSIC,
@@ -43,31 +46,62 @@ class SongManager(context: Context, private val mediaStoreManager: MediaStoreMan
         val files = mediaStoreManager.getFilesFromDirectory(
             audioCollection,
             songDirectory,
-            songFileExtension
+            songFileExtensions
         )
         return files.map { file -> getSongFromFile(file) }
     }
 
     private fun getSongFromFile(file: MediaStoreFile): Song {
-        return Song(file.uri, file.name.replace(songFileExtension, ""))
+        return Song(file.uri, removeExtension(file.name))
     }
 
-    fun createSong(fileName: String): Uri? {
-        val fileNameWithExtension = fileName.plus(songFileExtension)
-        return mediaStoreManager.createFile(fileNameWithExtension, audioCollection, songDirectory)
+    private fun removeExtension(fileName: String): String {
+        val extension = songFileExtensions.firstOrNull {
+            fileName.endsWith(it, ignoreCase = true)
+        }
+        return if (extension == null) fileName else fileName.dropLast(extension.length)
+    }
+
+    fun createSong(
+        fileName: String,
+        extension: String = DEFAULT_EXTENSION,
+        mimeType: String? = null
+    ): Uri? {
+        val columnValues =
+            if (mimeType != null) mapOf(MediaStore.MediaColumns.MIME_TYPE to mimeType)
+            else emptyMap()
+
+        return mediaStoreManager.createFile(
+            fileName.plus(extension),
+            audioCollection,
+            songDirectory,
+            columnValues
+        )
     }
 
     fun openSongForWriting(uri: Uri): OutputStream? {
         return mediaStoreManager.openFileOutputStream(uri, "w")
     }
 
+    /** Renames the song but keeps its extension, otherwise it would disappear from the library. */
     fun renameSong(uri: Uri, newFileName: String): Int {
-        val columnValues = mapOf(MediaStore.MediaColumns.DISPLAY_NAME to newFileName)
+        val currentFileName = mediaStoreManager.getFileByUri(uri).name
+        val extension = songFileExtensions.firstOrNull {
+            currentFileName.endsWith(it, ignoreCase = true)
+        } ?: DEFAULT_EXTENSION
+
+        val columnValues =
+            mapOf(MediaStore.MediaColumns.DISPLAY_NAME to newFileName.plus(extension))
+
         return mediaStoreManager.updateFile(uri, columnValues)
     }
 
     fun deleteSong(uri: Uri): Int {
         return mediaStoreManager.deleteFile(uri)
+    }
+
+    companion object {
+        private const val DEFAULT_EXTENSION = ".mp3"
     }
 
 }
