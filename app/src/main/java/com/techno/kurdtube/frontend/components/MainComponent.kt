@@ -3,11 +3,16 @@ package com.techno.kurdtube.frontend.components
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,6 +22,7 @@ import com.techno.kurdtube.MainViewModel
 import com.techno.kurdtube.R
 import com.techno.kurdtube.backend.library.Playlist
 import com.techno.kurdtube.backend.screen.Screen
+import com.techno.kurdtube.backend.setting.Setting
 
 
 @OptIn(
@@ -82,29 +88,50 @@ fun MainComponent(viewModel: MainViewModel) {
                         Screen.SEARCH -> {
                             Box {
 
-                                BrowserComponent(
-                                    onLoad = { browser, isFirst ->
-                                        if (isFirst) {
-                                            browser.loadUrl(viewModel.getKurdishMusicSearchUrl())
+                                if (viewModel.isSearchReady()) {
+                                    BrowserComponent(
+                                        onLoad = { browser, isFirst ->
+                                            if (isFirst) {
+                                                browser.loadUrl(viewModel.getKurdishMusicSearchUrl())
+                                            }
+                                            if (viewModel.isResetBrowserEnabled()) {
+                                                browser.reset()
+                                            }
+                                        },
+                                        onFindDownload = { downloadInfo ->
+                                            viewModel.updateDownloadInfo(downloadInfo = downloadInfo)
                                         }
-                                        if (viewModel.isResetBrowserEnabled()) {
-                                            browser.reset()
-                                        }
-                                    },
-                                    onFindDownload = { downloadInfo ->
-                                        viewModel.updateDownloadInfo(downloadInfo = downloadInfo)
-                                    }
-                                )
+                                    )
 
-                                DownloadButtonComponent(
-                                    visible = viewModel.hasFoundDownloadInfo(),
-                                    onClick = {
-                                        viewModel.startDownload()
-                                    },
-                                    modifier = Modifier
-                                        .padding(16.dp)
-                                        .align(Alignment.BottomCenter)
-                                )
+                                    DownloadButtonComponent(
+                                        visible = viewModel.hasFoundDownloadInfo(),
+                                        onClick = {
+                                            viewModel.startDownload()
+                                        },
+                                        modifier = Modifier
+                                            .padding(16.dp)
+                                            .align(Alignment.BottomCenter)
+                                    )
+                                } else {
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        if (viewModel.isProxyLoading()) {
+                                            CircularProgressIndicator()
+                                            Text(text = stringResource(R.string.proxy_loading))
+                                        } else {
+                                            Text(text = stringResource(R.string.proxy_unavailable))
+                                            Button(onClick = { viewModel.configurePublicProxy() }) {
+                                                Text(text = stringResource(R.string.proxy_retry))
+                                            }
+                                            Button(onClick = { viewModel.continueWithoutPublicProxy() }) {
+                                                Text(text = stringResource(R.string.proxy_continue_direct))
+                                            }
+                                        }
+                                    }
+                                }
 
                             }
                         }
@@ -213,6 +240,9 @@ fun MainComponent(viewModel: MainViewModel) {
                                 settings = settingManager.getSettings(),
                                 onSettingChange = { key, value ->
                                     settingManager.setSetting(key, value)
+                                    if (key == Setting.USE_PUBLIC_PROXY.name) {
+                                        viewModel.setPublicProxyEnabled(value.toBoolean())
+                                    }
                                 }
                             )
 

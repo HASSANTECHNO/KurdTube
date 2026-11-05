@@ -44,6 +44,13 @@ enum class Setting(
         SettingType.Switch(false)
     ),
 
+    USE_PUBLIC_PROXY(
+        R.string.setting_title_publicproxy,
+        R.string.setting_description_publicproxy,
+        R.string.setting_category_browser,
+        SettingType.Switch(true)
+    ),
+
     UPDATES(
         R.string.setting_title_updates,
         R.string.setting_description_updates,

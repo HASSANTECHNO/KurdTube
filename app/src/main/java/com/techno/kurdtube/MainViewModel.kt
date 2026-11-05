@@ -15,6 +15,7 @@ import com.techno.kurdtube.backend.download.YoutubeDownloadManager
 import com.techno.kurdtube.backend.library.LibraryManager
 import com.techno.kurdtube.backend.permission.AppPermissionManager
 import com.techno.kurdtube.backend.player.PlayerManager
+import com.techno.kurdtube.backend.proxy.PublicProxyManager
 import com.techno.kurdtube.backend.screen.Screen
 import com.techno.kurdtube.backend.screen.ScreenManager
 import com.techno.kurdtube.backend.setting.Setting
@@ -43,6 +44,53 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val settingManager = SettingManager(getAppContext())
 
     val permissionManager = AppPermissionManager(getAppContext())
+
+    private val publicProxyManager = PublicProxyManager()
+
+    private var searchReadyState by mutableStateOf(false)
+    private var proxyLoadingState by mutableStateOf(false)
+
+    init {
+        if (settingManager.getSetting(Setting.USE_PUBLIC_PROXY).toBoolean()) {
+            configurePublicProxy()
+        } else {
+            searchReadyState = true
+        }
+    }
+
+    fun isSearchReady(): Boolean = searchReadyState
+
+    fun isProxyLoading(): Boolean = proxyLoadingState
+
+    fun configurePublicProxy() {
+        proxyLoadingState = true
+        searchReadyState = false
+
+        publicProxyManager.configure { result ->
+            proxyLoadingState = false
+            searchReadyState = result.isSuccess
+            result.exceptionOrNull()?.let { LOG("public proxy setup failed: ${it.message}") }
+        }
+    }
+
+    fun setPublicProxyEnabled(enabled: Boolean) {
+        if (enabled) {
+            configurePublicProxy()
+        } else {
+            proxyLoadingState = true
+            publicProxyManager.clear {
+                proxyLoadingState = false
+                searchReadyState = true
+            }
+        }
+    }
+
+    fun continueWithoutPublicProxy() {
+        publicProxyManager.clear {
+            proxyLoadingState = false
+            searchReadyState = true
+        }
+    }
 
     // download info ==========================================
 
