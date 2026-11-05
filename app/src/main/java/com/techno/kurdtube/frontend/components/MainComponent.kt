@@ -85,7 +85,7 @@ fun MainComponent(viewModel: MainViewModel) {
                                 BrowserComponent(
                                     onLoad = { browser, isFirst ->
                                         if (isFirst) {
-                                            browser.loadUrl("https://youtube.com")
+                                            browser.loadUrl(viewModel.getKurdishMusicSearchUrl())
                                         }
                                         if (viewModel.isResetBrowserEnabled()) {
                                             browser.reset()

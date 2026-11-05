@@ -116,6 +116,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return settingManager.getSetting(Setting.RESET_BROWSER).toBoolean()
     }
 
+    fun getKurdishMusicSearchUrl(): String {
+        val searchQuery = listOf(
+            "Kurdish music",
+            "Kurdi music",
+            "Kurmanji song",
+            "Kurmancî song",
+            "Sorani song",
+            "Soranî song",
+            "Badini song",
+            "Gorani song",
+            "Goranî song",
+            "Hawrami song",
+            "Hawramî song",
+            "Zazaki song",
+            "Zazakî song",
+            "Feyli song",
+            "Laki song"
+        ).joinToString(" OR ")
+
+        return Uri.parse("https://www.youtube.com/results")
+            .buildUpon()
+            .appendQueryParameter("search_query", searchQuery)
+            // YouTube's upload-date sort filter; newer uploads appear first.
+            .appendQueryParameter("sp", "CAI=")
+            .build()
+            .toString()
+    }
+
     // theme ==========================================
 
     //check isSystemInDarkMode
