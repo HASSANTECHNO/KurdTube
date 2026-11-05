@@ -10,12 +10,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.techno.kurdtube.R
 
@@ -35,22 +38,25 @@ fun TopBarComponent(onClickTitleText: () -> Unit) {
 
 @Composable
 fun ClickableAppName(onClick: () -> Unit) {
-    //the app logo sits next to the app name, from the right side next to the K
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.clickable(onClick = onClick)
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.logo),
-            contentDescription = stringResource(id = R.string.app_name),
-            modifier = Modifier.size(32.dp)
-        )
+    //the logo must sit right next to the K in every language, so the row is
+    //forced to left-to-right layout instead of flipping with the locale
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable(onClick = onClick)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = stringResource(id = R.string.app_name),
+                modifier = Modifier.size(32.dp)
+            )
 
-        Text(
-            text = stringResource(id = R.string.app_name),
-            modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .padding(2.dp)
-        )
+            Text(
+                text = stringResource(id = R.string.app_name),
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .padding(2.dp)
+            )
+        }
     }
 }
