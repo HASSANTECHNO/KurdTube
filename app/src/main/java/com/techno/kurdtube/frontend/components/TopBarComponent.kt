@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,7 +24,7 @@ import com.techno.kurdtube.R
 @Composable
 fun TopBarComponent(onClickTitleText: () -> Unit) {
 
-    TopAppBar(
+    CenterAlignedTopAppBar(
         title = {
             ClickableAppName(onClick = onClickTitleText)
         },
