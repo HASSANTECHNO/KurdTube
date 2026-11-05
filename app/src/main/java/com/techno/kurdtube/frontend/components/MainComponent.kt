@@ -17,7 +17,6 @@ import com.techno.kurdtube.MainViewModel
 import com.techno.kurdtube.R
 import com.techno.kurdtube.backend.library.Playlist
 import com.techno.kurdtube.backend.screen.Screen
-import com.techno.kurdtube.backend.setting.Setting
 
 
 @OptIn(
@@ -26,10 +25,7 @@ import com.techno.kurdtube.backend.setting.Setting
     ExperimentalPagerApi::class
 )
 @Composable
-fun MainComponent(
-    viewModel: MainViewModel,
-    onLanguageChange: (String) -> Unit = {}
-) {
+fun MainComponent(viewModel: MainViewModel) {
 
     val screenManager = viewModel.screenManager
     val libraryManager = viewModel.libraryManager
@@ -217,9 +213,6 @@ fun MainComponent(
                                 settings = settingManager.getSettings(),
                                 onSettingChange = { key, value ->
                                     settingManager.setSetting(key, value)
-                                    if (key == Setting.LANGUAGE.name) {
-                                        onLanguageChange(value)
-                                    }
                                 }
                             )
 

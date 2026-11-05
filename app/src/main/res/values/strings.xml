@@ -95,6 +95,14 @@
     <string name="setting_title_resetbrowser">Reset browser</string>
     <string name="setting_description_resetbrowser">Clear browser cache and cookies.</string>
 
+    <string name="setting_title_publicproxy">Use public browser proxies</string>
+    <string name="setting_description_publicproxy">Loads a community proxy list from GitHub and routes browser traffic through its public proxies. Availability and privacy depend on those proxy operators.</string>
+
+    <string name="proxy_loading">Preparing public proxies…</string>
+    <string name="proxy_unavailable">Could not load a working proxy list.</string>
+    <string name="proxy_retry">Try again</string>
+    <string name="proxy_continue_direct">Continue without proxy</string>
+
     <string name="setting_title_updates">Updates</string>
     <string name="setting_description_updates">Check for updates when the app starts.</string>
 
