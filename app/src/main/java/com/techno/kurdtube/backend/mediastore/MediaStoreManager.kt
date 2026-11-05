@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import java.io.File
 import java.io.InputStream
@@ -55,6 +56,10 @@ class MediaStoreManager(context: Context) {
 
     fun openFileOutputStream(uri: Uri, mode: String): OutputStream? {
         return contentResolver.openOutputStream(uri, mode)
+    }
+
+    fun openFileDescriptor(uri: Uri, mode: String): ParcelFileDescriptor? {
+        return contentResolver.openFileDescriptor(uri, mode)
     }
 
     fun openFileInputStream(uri: Uri): InputStream? {

@@ -44,10 +44,30 @@ class UpdateManager(context: Context) {
     fun checkForUpdates() {
         async {
             val update = getLastUpdate() ?: return@async
-            if (update.version != appVersion) {
+            val currentVersion = appVersion ?: return@async
+            //only offer a real upgrade: comparing for inequality would let an older
+            //GitHub release "update" (and downgrade) a newer local build
+            if (isNewerVersion(update.version, currentVersion)) {
                 updateAvailableState = update
             }
         }
+    }
+
+    /** Returns true when [remote] is a strictly newer dotted version than [current]. */
+    private fun isNewerVersion(remote: String, current: String): Boolean {
+        val remoteParts = remote.split('.', '-', '_', '+').mapNotNull { it.toIntOrNull() }
+        val currentParts = current.split('.', '-', '_', '+').mapNotNull { it.toIntOrNull() }
+
+        val size = maxOf(remoteParts.size, currentParts.size)
+        for (i in 0 until size) {
+            val remotePart = remoteParts.getOrElse(i) { 0 }
+            val currentPart = currentParts.getOrElse(i) { 0 }
+            if (remotePart != currentPart) {
+                return remotePart > currentPart
+            }
+        }
+
+        return false
     }
 
     private fun getLastUpdate(): Update? {

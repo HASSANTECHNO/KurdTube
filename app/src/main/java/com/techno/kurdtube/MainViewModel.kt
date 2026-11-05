@@ -158,32 +158,53 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // browser ==========================================
 
+    /**
+     * A shared link can arrive at the activity before the browser exists, so it is kept
+     * until the search screen creates the WebView.
+     */
+    private var pendingUrl: String? = null
+
     fun loadUrl(url: String) {
-        currentBrowser?.loadUrl(url)
+        pendingUrl = url
+        currentBrowser?.let {
+            pendingUrl = null
+            it.loadUrl(url)
+        }
+    }
+
+    /** Returns the link that was waiting for the browser, and forgets it. */
+    fun consumePendingUrl(): String? {
+        val url = pendingUrl
+        pendingUrl = null
+        return url
     }
 
     fun isResetBrowserEnabled(): Boolean {
         return settingManager.getSetting(Setting.RESET_BROWSER).toBoolean()
     }
 
+    fun isKurdishOnlySearchEnabled(): Boolean {
+        return settingManager.getSetting(Setting.KURDISH_ONLY_SEARCH).toBoolean()
+    }
+
     fun getKurdishMusicSearchUrl(): String {
         val searchQuery = listOf(
-            "Kurdish music",
-            "Kurdi music",
-            "Kurmanji song",
-            "Kurmancî song",
-            "Sorani song",
-            "Soranî song",
-            "Badini song",
-            "Gorani song",
-            "Goranî song",
-            "Hawrami song",
-            "Hawramî song",
-            "Zazaki song",
-            "Zazakî song",
-            "Feyli song",
-            "Laki song"
-        ).joinToString(" OR ")
+            "kurdish music",
+            "kurdi music",
+            "kurmanji song",
+            "kurmancî song",
+            "sorani song",
+            "soranî song",
+            "badini song",
+            "gorani song",
+            "goranî song",
+            "hawrami song",
+            "hawramî song",
+            "zazaki song",
+            "zazakî song",
+            "feyli song",
+            "laki song"
+        ).joinToString(" | ")
 
         return Uri.parse("https://www.youtube.com/results")
             .buildUpon()

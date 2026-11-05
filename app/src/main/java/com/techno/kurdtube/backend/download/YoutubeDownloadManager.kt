@@ -44,15 +44,60 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
 
         downloadThread = async {
             var uri: Uri? = null
+            var current = download
 
             try {
-                uri = createSongFile(download)
+                var currentUri = createSongFile(current)
+                uri = currentUri
 
-                val written = downloadFile(download, uri, bufferBytes)
-                val finishedUri = lastFileUri ?: uri
+                var written = 0L
+                var renewals = 0
+
+                while (true) {
+                    try {
+                        written = downloadFile(current, currentUri, bufferBytes)
+                        break
+                    } catch (error: ExpiredLinkException) {
+                        //googlevideo signs the link for the requesting IP, so a new network
+                        //path (proxy, mobile data, VPN) makes it invalid. Ask for a new one.
+                        val videoId =
+                            YoutubeApi.extractVideoId(downloadInfo.videoUrl.toString())
+
+                        if (cancelled || videoId == null || renewals >= MAX_LINK_RENEWALS) {
+                            throw error
+                        }
+
+                        renewals++
+                        LOG("download link expired, resolving a fresh one ($renewals)")
+
+                        val stream = YoutubeApi.resolveAudio(videoId)
+                        current = YoutubeDownload(
+                            stream.title,
+                            stream.downloadUrl,
+                            stream.mimeType,
+                            stream.contentLength
+                        )
+
+                        songManager.deleteSong(currentUri)
+                        lastReportedBytes = 0L
+                        currentUri = createSongFile(current)
+                        uri = currentUri
+                        reportProgress(0L, current.contentLength)
+                    }
+                }
+
+                val downloadedUri = lastFileUri ?: currentUri
+                val finishedUri = convertToMp3(downloadedUri, current.fileName)
+                    ?: downloadedUri
+
+                if (finishedUri != downloadedUri) {
+                    songManager.deleteSong(downloadedUri)
+                }
+
+                lastFileUri = finishedUri
 
                 sync {
-                    downloadState.updateProgress(written, download.contentLength)
+                    downloadState.updateProgress(written, current.contentLength)
                     downloadState.finish()
                 }
 
@@ -111,6 +156,60 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
         }
     }
 
+    /**
+     * Converts the downloaded stream into an MP3 so the library holds a real `.mp3` file.
+     * Returns `null` when the conversion is not possible and the downloaded file should be
+     * kept as it is.
+     */
+    private fun convertToMp3(sourceUri: Uri, fileName: String): Uri? {
+        val mp3Uri = try {
+            songManager.createSong(
+                fileName = sanitizeFileName(fileName),
+                extension = MP3_EXTENSION,
+                mimeType = MP3_MIME_TYPE
+            )
+        } catch (error: Throwable) {
+            LOG("could not create the mp3 file: ${error.message}")
+            null
+        } ?: return null
+
+        lastFileUri = mp3Uri
+
+        val outputStream = songManager.openSongForWriting(mp3Uri)
+        val inputFile = songManager.openSongForReading(sourceUri)
+
+        if (outputStream == null || inputFile == null) {
+            LOG("could not open the files for the mp3 conversion")
+            runCatching { outputStream?.close() }
+            runCatching { inputFile?.close() }
+            songManager.deleteSong(mp3Uri)
+            lastFileUri = sourceUri
+            return null
+        }
+
+        val converted = try {
+            Mp3Converter.convert(
+                source = inputFile,
+                output = outputStream,
+                shouldCancel = { cancelled }
+            )
+        } catch (error: Throwable) {
+            LOG("MP3 conversion failed: ${error.message}")
+            false
+        } finally {
+            runCatching { outputStream.close() }
+            runCatching { inputFile.close() }
+        }
+
+        if (!converted) {
+            songManager.deleteSong(mp3Uri)
+            lastFileUri = sourceUri
+            return null
+        }
+
+        return mp3Uri
+    }
+
     private fun createSongFile(download: YoutubeDownload): Uri {
         val uri = songManager.createSong(
             fileName = sanitizeFileName(download.fileName),
@@ -166,8 +265,11 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
     companion object {
         private const val PROGRESS_STEP_BYTES = 32L * 1024L
         private const val PROGRESS_INTERVAL_MS = 250L
+        private const val MAX_LINK_RENEWALS = 3
         private const val MAX_FILE_NAME_LENGTH = 120
         private const val FALLBACK_FILE_NAME = "audio"
+        private const val MP3_EXTENSION = ".mp3"
+        private const val MP3_MIME_TYPE = "audio/mpeg"
 
         private val ILLEGAL_FILE_NAME_CHARS = Regex("""[\\/:*?"<>|]""")
         private val WHITESPACES = Regex("\\s+")

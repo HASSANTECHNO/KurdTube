@@ -103,6 +103,9 @@
     <string name="proxy_retry">Try again</string>
     <string name="proxy_continue_direct">Continue without proxy</string>
 
+    <string name="setting_title_kurdishonlysearch">Kurdish music only</string>
+    <string name="setting_description_kurdishonlysearch">Opens the search page with Kurdish music of all dialects (Kurmanji, Sorani, Badini, Gorani, Zazaki, …).</string>
+
     <string name="setting_title_updates">Updates</string>
     <string name="setting_description_updates">Check for updates when the app starts.</string>
 

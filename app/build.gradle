@@ -13,8 +13,8 @@ android {
         applicationId namespace
         minSdk 25
         targetSdk 33
-        versionCode 2
-        versionName "1.1.4"
+        versionCode 3
+        versionName "1.1.5"
 
         vectorDrawables {
             useSupportLibrary true
@@ -25,6 +25,7 @@ android {
         release {
             minifyEnabled true
             signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -64,5 +65,14 @@ dependencies {
 
     implementation 'com.google.accompanist:accompanist-systemuicontroller:0.28.0'
     implementation 'com.google.accompanist:accompanist-pager:0.28.0'
+
+    implementation "androidx.webkit:webkit:1.6.0"
+
+    //native LAME encoder, used to turn the downloaded YouTube stream into an MP3 file
+    implementation('com.github.naman14:TAndroidLame:1.1') {
+        //the wrapper is old and still declares the pre-AndroidX support library, which
+        //would duplicate the androidx classes; only the native encoder is needed
+        exclude group: 'com.android.support'
+    }
 
 }

@@ -39,15 +39,49 @@ object YoutubeApi {
     private const val CONNECT_TIMEOUT_MS = 15_000
     private const val READ_TIMEOUT_MS = 15_000
 
+    /** Only the beginning of the watch page is read; the visitor id is in the first script. */
+    private const val VISITOR_PAGE_CHARS = 300_000
+
+    private val visitorDataPattern = Regex("\"visitorData\":\"([^\"]+)\"")
+
+    /** One visitor id per app run is enough, YouTube does not expire it quickly. */
+    @Volatile
+    private var cachedVisitorData: String? = null
+
     private data class Client(
         val name: String,
         val version: String,
         val clientId: String,
         val userAgent: String,
-        val contextValues: Map<String, Any>
+        val contextValues: Map<String, Any>,
+        /** YouTube only hands out full-length URLs when the visitor id is known. */
+        val needsVisitorData: Boolean = false
     )
 
+    /**
+     * The clients are tried in this order. VISIONOS first: since YouTube's SABR rollout the
+     * mobile clients hand out prefetch URLs that stop after roughly one megabyte, while the
+     * visionOS client still returns a URL that serves the whole file. This is the same
+     * client that yt-dlp uses by default.
+     */
     private val clients = listOf(
+        Client(
+            name = "VISIONOS",
+            version = "1.02",
+            clientId = "101",
+            userAgent =
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_7_3) AppleWebKit/605.1.15 " +
+                        "(KHTML, like Gecko) Version/26.0 Safari/605.1.15",
+            contextValues = mapOf(
+                "deviceMake" to "Apple",
+                "deviceModel" to "RealityDevice17,1",
+                "osName" to "visionOS",
+                "osVersion" to "26.5.23O471",
+                "timeZone" to "UTC",
+                "utcOffsetMinutes" to 0
+            ),
+            needsVisitorData = true
+        ),
         Client(
             name = "ANDROID",
             version = "20.05.46",
@@ -110,9 +144,20 @@ object YoutubeApi {
      */
     fun resolveAudio(videoId: String): YoutubeAudioStream {
         var lastError: Exception? = null
+
+        //the visionOS client serves the whole file, the mobile clients only a prefetch
+        for (client in clients.filter { it.needsVisitorData }) {
+            try {
+                return resolveWith(client, videoId)
+            } catch (error: Exception) {
+                LOG("YoutubeApi ${client.name} failed: ${error.message}")
+                lastError = error
+            }
+        }
+
         var bestStream: YoutubeAudioStream? = null
 
-        for (client in clients) {
+        for (client in clients.filterNot { it.needsVisitorData }) {
             try {
                 val stream = resolveWith(client, videoId)
 
@@ -167,6 +212,13 @@ object YoutubeApi {
             setRequestProperty("User-Agent", client.userAgent)
             setRequestProperty("X-YouTube-Client-Name", client.clientId)
             setRequestProperty("X-YouTube-Client-Version", client.version)
+
+            if (client.needsVisitorData) {
+                //without it YouTube answers LOGIN_REQUIRED ("confirm you're not a bot")
+                setRequestProperty("X-Goog-Visitor-Id", getVisitorData(videoId))
+                setRequestProperty("Origin", "https://www.youtube.com")
+                setRequestProperty("Accept-Language", "en-us,en;q=0.5")
+            }
         }
 
         try {
@@ -186,6 +238,48 @@ object YoutubeApi {
             }
 
             return text
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    /**
+     * Reads the visitor data out of the watch page. YouTube expects it together with the
+     * visionOS player request; without it the request is answered with LOGIN_REQUIRED.
+     */
+    private fun getVisitorData(videoId: String): String {
+        cachedVisitorData?.let { return it }
+
+        val userAgent = clients.first { it.needsVisitorData }.userAgent
+        val connection =
+            (URL("https://www.youtube.com/watch?v=$videoId").openConnection()
+                    as HttpURLConnection).apply {
+                connectTimeout = CONNECT_TIMEOUT_MS
+                readTimeout = READ_TIMEOUT_MS
+                requestMethod = "GET"
+                instanceFollowRedirects = true
+                setRequestProperty("User-Agent", userAgent)
+                setRequestProperty("Accept-Language", "en-us,en;q=0.5")
+            }
+
+        try {
+            val page = connection.inputStream.bufferedReader().use { reader ->
+                val buffer = CharArray(VISITOR_PAGE_CHARS)
+                var count = 0
+
+                while (count < buffer.size) {
+                    val read = reader.read(buffer, count, buffer.size - count)
+                    if (read <= 0) break
+                    count += read
+                }
+
+                String(buffer, 0, count)
+            }
+
+            val encoded = visitorDataPattern.find(page)?.groupValues?.get(1)
+                ?: throw YoutubeResolutionException("the watch page has no visitor data")
+
+            return URLDecoder.decode(encoded, "UTF-8").also { cachedVisitorData = it }
         } finally {
             connection.disconnect()
         }

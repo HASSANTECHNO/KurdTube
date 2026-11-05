@@ -16,6 +16,10 @@
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable
 
+# the native LAME encoder is wired through JNI with fixed native method names
+-keep class com.naman14.androidlame.** { *; }
+-dontwarn com.naman14.androidlame.**
+
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile

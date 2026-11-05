@@ -40,7 +40,7 @@ class YoutubeDownload(
      *  otherwise the download URL is parsed for a "clen" query parameter, or defaults to -1L.
      *  This is provided by the caller (YoutubeBrowser) via YoutubeDownloadInfo.
      */
-    contentLength: Long = -1L
+    initialContentLength: Long = -1L
 ) {
 
     /** Entry point used by the player, which hands over the captured request. */
@@ -48,7 +48,7 @@ class YoutubeDownload(
         downloadInfo.videoTitle,
         downloadInfo.downloadUrl.toString(),
         /* mimeType = */ downloadInfo.mimeType,
-        /* contentLength = */ downloadInfo.contentLength
+        /* initialContentLength = */ downloadInfo.contentLength
     )
 
     private val queryParameters: Map<String, String> = parseQueryParameters(downloadUrl)
@@ -79,7 +79,7 @@ class YoutubeDownload(
      *  Uses the provided [contentLength] from the constructor if >0,
      *  otherwise falls back to parsing the download URL for a "clen" query parameter.
      */
-    var contentLength: Long = -1L
+    var contentLength: Long = initialContentLength
         get() = field
         set(value) {
             field = value
@@ -119,11 +119,17 @@ class YoutubeDownload(
             while (contentLength < 0L || downloaded < contentLength) {
                 try {
                     val added = downloadFrom(output, downloaded, bufferSize, onProgress)
-                    if (added <= 0L && downloaded < contentLength) {
-                        throw IOException("no data received at byte $downloaded")
+                    if (added <= 0L) {
+                        if (contentLength > 0L && downloaded < contentLength) {
+                            throw IOException("no data received at byte $downloaded")
+                        }
+                        break
                     }
                     downloaded += added
                     failedAttempts = 0
+
+                    //no announced size: a short chunk means the end of the file was reached
+                    if (contentLength <= 0L && added < CHUNK_SIZE_BYTES) break
                 } catch (error: IOException) {
                     val retryable = error !is ExpiredLinkException &&
                             error !is RangeNotSupportedException &&
@@ -135,9 +141,6 @@ class YoutubeDownload(
                     LOG("download interrupted at $downloaded bytes (${error.message}), retry $failedAttempts")
                     backoff(failedAttempts)
                 }
-
-                //without a known size the first pass is all we get
-                if (contentLength <= 0L) break
             }
 
             output.flush()
@@ -190,7 +193,9 @@ class YoutubeDownload(
                 }
 
                 responseCode == 403 || responseCode == 404 || responseCode == 410 -> {
-                    throw ExpiredLinkException("the download link expired (HTTP $responseCode)")
+                    throw ExpiredLinkException(
+                        "the download link expired (HTTP $responseCode${errorDetails(connection)})"
+                    )
                 }
 
                 responseCode == 429 || responseCode >= 500 -> {
@@ -204,9 +209,6 @@ class YoutubeDownload(
             }
 
             val written = copy(connection.inputStream, output, startOffset, bufferSize, onProgress)
-
-            //no announced size: everything the stream had is the file
-            if (contentLength <= 0L && written > 0L) contentLength = written
 
             return written
         } finally {
@@ -258,8 +260,11 @@ class YoutubeDownload(
             //keeps the byte count of the response equal to the size of the file
             setRequestProperty("Accept-Encoding", "identity")
 
-            if (startOffset > 0L && !urlHasRangeParameter) {
-                setRequestProperty("Range", "bytes=$startOffset-")
+            //googlevideo answers 403 when a stream is requested without a range, so the
+            //download always asks for one bounded chunk and continues from the last byte
+            if (!urlHasRangeParameter) {
+                val endOffset = startOffset + CHUNK_SIZE_BYTES - 1L
+                setRequestProperty("Range", "bytes=$startOffset-$endOffset")
             }
         }
     }
@@ -270,8 +275,23 @@ class YoutubeDownload(
         return downloadUrl.replace(Regex("([?&]$RANGE_PARAMETER=)[^&]*"), "$1$startOffset-")
     }
 
-    private fun backoff(attempt: Int) {
-        try {
+    /** The first bytes of an error response, they name the reason (IP-bound, expired, ...). */
+    private fun errorDetails(connection: HttpURLConnection): String {
+        return try {
+            val text = connection.errorStream
+                ?.bufferedReader()
+                ?.use { it.readText() }
+                ?.replace(Regex("\\s+"), " ")
+                ?.trim()
+                ?.take(400)
+
+            if (text.isNullOrBlank()) "" else ": $text"
+        } catch (error: Exception) {
+            ""
+        }
+    }
+
+    private fun backoff(attempt: Int) {        try {
             Thread.sleep(RETRY_DELAY_MS * attempt)
         } catch (error: InterruptedException) {
             Thread.currentThread().interrupt()
@@ -319,6 +339,8 @@ class YoutubeDownload(
         private const val RETRY_DELAY_MS = 1_000L
         private const val MIN_BUFFER_SIZE = 16L * 1024L
         private const val MAX_BUFFER_SIZE = 1024L * 1024L
+        /** Size of a single range request. Smaller chunks resume faster after a connection drop. */
+        private const val CHUNK_SIZE_BYTES = 4L * 1024L * 1024L
         private const val USER_AGENT =
             "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0 Mobile Safari/537.36"
     }

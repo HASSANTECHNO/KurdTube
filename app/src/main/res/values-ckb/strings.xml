@@ -108,4 +108,15 @@
 
     <string name="settings_button_reset">سفرکردنەوەی ڕێکخستنەکان</string>
 
+    <string name="setting_title_publicproxy">بەکارهێنانی پرۆکسی گشتی بۆ وێبگەڕ</string>
+    <string name="setting_description_publicproxy">لیستی پرۆکسی گشتی لە گیت‌هاب دادەبەزێنێت و هاتوچۆی وێبگەڕ بەناو ئەواندا دەگوازێتەوە. بەردەستبوون و پاراستنی تایبەتمەندی پەیوەندی بە بەڕێوەبەرانی ئەو پرۆکسیانەوە هەیە.</string>
+
+    <string name="proxy_loading">ئامادەکردنی پرۆکسی گشتی…</string>
+    <string name="proxy_unavailable">نەتوانرا لیستی پرۆکسی کارا باربکرێت.</string>
+    <string name="proxy_retry">دووبارە هەوڵبدەرەوە</string>
+    <string name="proxy_continue_direct">بەردەوامبوون بەبێ پرۆکسی</string>
+
+    <string name="setting_title_kurdishonlysearch">تەنها گۆرانی کوردی</string>
+    <string name="setting_description_kurdishonlysearch">لاپەڕەی گەڕان بە گۆرانی کوردی هەموو زاراوەکان (کورمانجی، سۆرانی، بادینی، گۆرانی، زازاکی و …) دەکاتەوە.</string>
+
 </resources>

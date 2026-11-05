@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import com.techno.kurdtube.R
 import com.techno.kurdtube.backend.mediastore.MediaStoreDirectory
@@ -81,6 +82,11 @@ class SongManager(context: Context, private val mediaStoreManager: MediaStoreMan
 
     fun openSongForWriting(uri: Uri): OutputStream? {
         return mediaStoreManager.openFileOutputStream(uri, "w")
+    }
+
+    /** Used by the MP3 conversion, which needs a seekable file descriptor. */
+    fun openSongForReading(uri: Uri): ParcelFileDescriptor? {
+        return mediaStoreManager.openFileDescriptor(uri, "r")
     }
 
     /** Renames the song but keeps its extension, otherwise it would disappear from the library. */

@@ -60,6 +60,13 @@ enum class Setting(
         SettingType.Switch(true)
     ),
 
+    KURDISH_ONLY_SEARCH(
+        R.string.setting_title_kurdishonlysearch,
+        R.string.setting_description_kurdishonlysearch,
+        R.string.setting_category_browser,
+        SettingType.Switch(true)
+    ),
+
     UPDATES(
         R.string.setting_title_updates,
         R.string.setting_description_updates,

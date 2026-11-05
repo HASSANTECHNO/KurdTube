@@ -10,6 +10,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        //TAndroidLame (a packaged LAME MP3 encoder) is published on JitPack
+        maven { url 'https://jitpack.io' }
     }
 }
 rootProject.name = "KurdTube"

@@ -108,4 +108,15 @@
 
     <string name="settings_button_reset">بازنشانی تنظیمات</string>
 
+    <string name="setting_title_publicproxy">استفاده از پروکسی‌های عمومی مرورگر</string>
+    <string name="setting_description_publicproxy">لیستی از پروکسی‌های عمومی را از گیت‌هاب بارگیری می‌کند و ترافیک مرورگر را از طریق آن‌ها مسیریابی می‌کند. در دسترس بودن و حریم خصوصی به گردانندگان این پروکسی‌ها بستگی دارد.</string>
+
+    <string name="proxy_loading">در حال آماده‌سازی پروکسی‌های عمومی…</string>
+    <string name="proxy_unavailable">بارگیری لیست پروکسی‌های سالم ممکن نشد.</string>
+    <string name="proxy_retry">تلاش دوباره</string>
+    <string name="proxy_continue_direct">ادامه بدون پروکسی</string>
+
+    <string name="setting_title_kurdishonlysearch">فقط آهنگ‌های کردی</string>
+    <string name="setting_description_kurdishonlysearch">صفحه جست‌وجو را با آهنگ‌های کردی همه گویش‌ها (کرمانجی، سورانی، بادینی، گورانی، زازاکی و …) باز می‌کند.</string>
+
 </resources>
