@@ -1,5 +1,6 @@
 package com.techno.kurdtube.frontend.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -18,6 +19,7 @@ class TabContent(
     val content: @Composable () -> Unit,
 )
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TabsComponent(
     tabs: List<TabContent>
