@@ -12,7 +12,9 @@ android {
     defaultConfig {
         applicationId namespace
         minSdk 25
-        targetSdk 33
+        // Android 16 (API 36) Play Protect blocks/warns when targetSdk is more
+        // than 2 levels below the device API; keep this at 35+.
+        targetSdk 35
         versionCode 3
         versionName "1.1.5"
 
@@ -26,6 +28,10 @@ android {
             minifyEnabled true
             signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Pin the release version explicitly so the release APK can never
+            // inherit a different version from a flavor/override.
+            versionCode 3
+            versionName "1.1.5"
         }
     }
 
