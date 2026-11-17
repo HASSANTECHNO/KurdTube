@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.techno.kurdtube.MainViewModel
 import com.techno.kurdtube.R
 import com.techno.kurdtube.backend.library.Playlist
@@ -22,8 +21,7 @@ import com.techno.kurdtube.backend.setting.Setting
 
 @OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class,
-    ExperimentalPagerApi::class
+    ExperimentalFoundationApi::class
 )
 @Composable
 fun MainComponent(viewModel: MainViewModel, onLanguageChange: (String) -> Unit = {}) {
