@@ -201,8 +201,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 libraryManager.databaseManager.writeLine("${song.contentUri} $videoId")
             }
 
-            //do not keep offering the same download after it finished
-            updateDownloadInfo(null)
+            // Keep the download info so the browser's download button stays
+            // available after a finished download. It is cleared when the
+            // browser navigates to another page.
         }
 
     }

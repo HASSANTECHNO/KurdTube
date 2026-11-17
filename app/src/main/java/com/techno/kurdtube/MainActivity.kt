@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -33,7 +34,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //must run before super.onCreate(), otherwise the splash screen is not installed
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
+        val splashStart = SystemClock.uptimeMillis()
+        //keep the splash visible briefly so it is not only a single frame
+        splashScreen.setKeepOnScreenCondition {
+            SystemClock.uptimeMillis() - splashStart < 600L
+        }
         super.onCreate(savedInstanceState)
         LOG("onCreate MainActivity")
 
