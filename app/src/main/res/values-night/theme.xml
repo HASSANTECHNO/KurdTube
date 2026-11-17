@@ -1,0 +1,11 @@
+<resources>
+
+    <!-- Dark-mode splash: black background + white logo.
+         The light-mode splash in values/theme.xml stays unchanged. -->
+    <style name="Main.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_dark_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_foreground_white</item>
+        <item name="postSplashScreenTheme">@style/Main.App</item>
+    </style>
+
+</resources>

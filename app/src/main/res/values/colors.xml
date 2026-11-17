@@ -7,4 +7,7 @@
     <color name="ytblack">#282828</color>
     <color name="ytred">#FF0000</color>
 
+    <!-- Dark splash background, matches the app's dark theme background -->
+    <color name="splash_dark_background">#121212</color>
+
 </resources>
