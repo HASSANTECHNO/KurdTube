@@ -31,10 +31,6 @@ android {
             minifyEnabled true
             signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            // Pin the release version explicitly so the release APK can never
-            // inherit a different version from a flavor/override.
-            versionCode 118
-            versionName "1.1.8"
         }
     }
 
