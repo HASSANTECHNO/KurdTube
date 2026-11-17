@@ -1,7 +1,7 @@
 <resources>
 
     <string name="screen_search">جستجو</string>
-    <string name="screen_library">کتابخانه</string>
+    <string name="screen_library">دانلودها</string>
     <string name="screen_player">پخش‌کننده</string>
     <string name="screen_settings">تنظیمات</string>
 
