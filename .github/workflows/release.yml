@@ -57,10 +57,34 @@ jobs:
           keyPassword=$KEY_PASSWORD
           EOF
 
+      - name: Validate keystore and secrets
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          echo "::notice::storePassword length=${#KEYSTORE_PASSWORD}"
+          echo "::notice::keyAlias=$KEY_ALIAS"
+          echo "::notice::keystore bytes=$(stat -c%s keystore/release.jks)"
+          sed -e 's/^storePassword=.*/storePassword=***/' -e 's/^keyPassword=.*/keyPassword=***/' keystore.properties | while IFS= read -r line; do
+            echo "::notice::properties: [$line]"
+          done
+          if ! keytool -list -keystore keystore/release.jks -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" > keytool.log 2>&1; then
+            cat keytool.log
+            while IFS= read -r line; do echo "::error::$line"; done < keytool.log
+            exit 1
+          fi
+          cat keytool.log
+
       - name: Build release APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon --stacktrace
+          if ! ./gradlew assembleRelease --no-daemon --stacktrace 2>&1 | tee gradle-build.log; then
+            echo "::error::Gradle build failed"
+            grep -E "FAILURE:|What went wrong|Keystore|error:|Caused by|Execution failed" gradle-build.log | tail -40 | while IFS= read -r line; do
+              echo "::error::$line"
+            done || true
+            exit 1
+          fi
 
       - name: Prepare APK
         run: |
