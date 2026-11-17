@@ -1,6 +1,6 @@
 package com.techno.kurdtube.frontend.components
 
-import androidx.activity.ComponentActivity
+import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -62,7 +62,7 @@ fun FilePermissionHandler(
     val filePermissionRequestLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult(),
         onResult = {
-            val success = it.resultCode == ComponentActivity.RESULT_OK
+            val success = it.resultCode == Activity.RESULT_OK
             onResult(success)
         }
     )
