@@ -46,6 +46,14 @@
     <string name="dialog_download_progress">%.1f MB</string>
     <string name="dialog_download_speed">%.1f MB/s</string>
     <string name="dialog_download_button_cancel">Cancel Download</string>
+    <string name="dialog_download_button_hide">Hide</string>
+    <string name="toast_download_hidden">Download continues in the background.</string>
+    <string name="toast_download_preparing">Download finished. Preparing the song…</string>
+    <string name="toast_download_completed">Song added to Downloads.</string>
+
+    <string name="dialog_share_download_title">Download video?</string>
+    <string name="dialog_button_cancel">Cancel</string>
+    <string name="toast_share_no_youtube_link">No YouTube link found.</string>
 
     <string name="dialog_edit_song_title">Edit Song</string>
     <string name="dialog_edit_song_button_delete">Delete</string>
@@ -121,5 +129,7 @@
     <string name="language_persian">Persian</string>
 
     <string name="settings_button_reset">Reset Settings</string>
+
+    <string name="settings_developer_credit">Developer by Hassan Techno</string>
 
 </resources>

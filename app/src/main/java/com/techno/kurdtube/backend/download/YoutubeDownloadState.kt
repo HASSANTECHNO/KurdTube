@@ -13,6 +13,10 @@ class YoutubeDownloadState {
     }
 
     var active by mutableStateOf(false)
+    /** The user dismissed the progress dialog; the download keeps running. */
+    var hidden by mutableStateOf(false)
+    /** The file is downloaded and is being converted to MP3 in the background. */
+    var processing by mutableStateOf(false)
     var fileName by mutableStateOf("")
     var progressBytes by mutableStateOf(0L)
     var sizeBytes by mutableStateOf(0L)
@@ -48,7 +52,15 @@ class YoutubeDownloadState {
         speedBytesPerSecond = 0L
         startTime = System.currentTimeMillis()
         lastUpdateTime = startTime
+        hidden = false
+        processing = false
         active = true
+    }
+
+    /** Closes the progress dialog without cancelling the running download. */
+    fun hide() {
+        if (!active) return
+        hidden = true
     }
 
     /** Call on the main thread. */
@@ -79,6 +91,8 @@ class YoutubeDownloadState {
 
     fun fail() {
         active = false
+        processing = false
+        hidden = false
         speedBytesPerSecond = 0L
         progressBytes = -1L
     }

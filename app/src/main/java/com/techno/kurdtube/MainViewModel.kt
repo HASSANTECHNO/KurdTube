@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import com.techno.kurdtube.backend.analytics.AnalyticsManager
+import com.techno.kurdtube.backend.download.YoutubeApi
 import com.techno.kurdtube.backend.download.YoutubeDownloadInfo
 import com.techno.kurdtube.backend.download.YoutubeDownloadManager
 import com.techno.kurdtube.backend.library.LibraryManager
@@ -103,6 +104,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val autoDownloadUrls = mutableListOf<String>()
 
+    /** Video shared from YouTube that the user can confirm for download. */
+    var shareDownloadPrompt by mutableStateOf(null as YoutubeDownloadInfo?)
+        private set
+
+    private var pendingSharedVideoId: String? = null
+    private var pendingDownload = false
+    private var pendingDownloadInfo: YoutubeDownloadInfo? = null
+
     fun hasFoundDownloadInfo(): Boolean {
         return downloadInfoState != null
     }
@@ -110,15 +119,42 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun updateDownloadInfo(downloadInfo: YoutubeDownloadInfo?) {
         if (downloadInfoState == downloadInfo) return
 
-        LOG("url is ${downloadInfo?.downloadUrl}")
+        if (downloadInfo == null) {
+            // Keep a shared-video prompt (and its info) stable while the browser
+            // reloads; it is cleared when the user acts or another video resolves.
+            if (shareDownloadPrompt != null) return
+
+            LOG("url is null")
+            downloadInfoState = null
+            return
+        }
+
+        LOG("url is ${downloadInfo.downloadUrl}")
         downloadInfoState = downloadInfo
 
-        if (
-            downloadInfo != null &&
-            settingManager.getSetting(Setting.AUTO_DOWNLOAD).toBoolean() &&
-            !autoDownloadUrls.contains(downloadInfo.videoUrl.toString())
-        ) {
-            autoDownloadUrls.add(downloadInfo.videoUrl.toString())
+        val videoId = YoutubeApi.extractVideoId(downloadInfo.videoUrl.toString())
+        val downloadKey = videoId ?: downloadInfo.videoUrl.toString()
+        val isSharedVideo = pendingSharedVideoId != null && videoId == pendingSharedVideoId
+        val autoDownload = settingManager.getSetting(Setting.AUTO_DOWNLOAD).toBoolean()
+
+        if (shareDownloadPrompt != null && !isSharedVideo) {
+            // the browser left the shared video while its confirmation dialog was open
+            pendingSharedVideoId = null
+            shareDownloadPrompt = null
+        }
+
+        if (isSharedVideo) {
+            if (!autoDownload) {
+                shareDownloadPrompt = downloadInfo
+                return
+            }
+
+            // auto download is enabled, so no confirmation dialog is needed
+            pendingSharedVideoId = null
+        }
+
+        if (autoDownload && !autoDownloadUrls.contains(downloadKey)) {
+            autoDownloadUrls.add(downloadKey)
             startDownload()
         }
     }
@@ -129,7 +165,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startDownload() {
         val downloadInfo = downloadInfoState ?: return
-        if (downloadManager.getDownloadState().active) return
+
+        if (downloadManager.isBusy()) return
+
+        if (permissionManager.getMissingPermission() != null) {
+            pendingDownload = true
+            pendingDownloadInfo = downloadInfo
+            return
+        }
+
+        pendingDownload = false
+        pendingDownloadInfo = null
+        pendingSharedVideoId = null
+        shareDownloadPrompt = null
+
         val bufferBytes = settingManager.getSetting(Setting.DOWNLOAD_BUFFER).toInt() * 1000L
         analyticsManager.logDownloadStarted()
         downloadManager.start(downloadInfo, bufferBytes) { song ->
@@ -137,6 +186,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             libraryManager.addToSongs(song)
 
             analyticsManager.logDownloadCompleted()
+            showToast(R.string.toast_download_completed)
 
             sync {
                 if (settingManager.getSetting(Setting.PLAY_SONG_AFTER_DOWNLOAD).toBoolean()) {
@@ -146,13 +196,41 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             //insert uri & videoId into database for later usage (e.g. loading thumbnails from yt)
-            val videoId = downloadInfo.videoUrl.getQueryParameter("v")
+            val videoId = YoutubeApi.extractVideoId(downloadInfo.videoUrl.toString())
             if (videoId != null) {
                 libraryManager.databaseManager.writeLine("${song.contentUri} $videoId")
             }
 
+            //do not keep offering the same download after it finished
+            updateDownloadInfo(null)
         }
 
+    }
+
+    /** Starts a download that was waiting for the storage permission. */
+    fun continuePendingDownload() {
+        if (!pendingDownload) return
+        pendingDownload = false
+
+        // resume the exact video that was requested, even if the browser moved on
+        pendingDownloadInfo?.let { downloadInfoState = it }
+        pendingDownloadInfo = null
+
+        startDownload()
+    }
+
+    fun hideDownloadDialog() {
+        downloadManager.getDownloadState().hide()
+        showToast(R.string.toast_download_hidden)
+    }
+
+    fun showDownloadDialog() {
+        downloadManager.getDownloadState().hidden = false
+    }
+
+    fun clearShareDownloadPrompt() {
+        shareDownloadPrompt = null
+        pendingSharedVideoId = null
     }
 
     // update ==========================================
@@ -269,7 +347,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadSharedYoutubeUrlInBrowser(intent: Intent?) {
-        val youtubeUrl = intent?.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString() ?: return
+        if (intent?.action != Intent.ACTION_SEND) return
+
+        val sharedText = intent.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString()
+        if (sharedText.isNullOrBlank()) {
+            showToast(R.string.toast_share_no_youtube_link)
+            return
+        }
+
+        val youtubeUrl = YoutubeApi.extractYoutubeUrl(sharedText)
+        val videoId = youtubeUrl?.let(YoutubeApi::extractVideoId)
+
+        if (youtubeUrl == null || videoId == null) {
+            showToast(R.string.toast_share_no_youtube_link)
+            return
+        }
+
+        val currentPromptVideoId = shareDownloadPrompt?.let {
+            YoutubeApi.extractVideoId(it.videoUrl.toString())
+        }
+        if (videoId == pendingSharedVideoId || videoId == currentPromptVideoId) return
+
+        shareDownloadPrompt = null
+        pendingSharedVideoId = videoId
         loadUrl(youtubeUrl)
         screenManager.openScreen(Screen.SEARCH)
     }

@@ -43,6 +43,14 @@
     <string name="dialog_download_progress">%.1f مگابایت</string>
     <string name="dialog_download_speed">%.1f مگابایت/چرکە</string>
     <string name="dialog_download_button_cancel">پاشگەزبوون لە داگرتن</string>
+    <string name="dialog_download_button_hide">شاردنەوە</string>
+    <string name="toast_download_hidden">داگرتن لە پاشەوە بەردەوام دەبێت.</string>
+    <string name="toast_download_preparing">داگرتن تەواو بوو؛ گۆرانی ئامادە دەکرێت…</string>
+    <string name="toast_download_completed">گۆرانی زیادکرا بۆ داگرتنەکان.</string>
+
+    <string name="dialog_share_download_title">داگرتنی ڤیدیۆ؟</string>
+    <string name="dialog_button_cancel">پاشگەزبوونەوە</string>
+    <string name="toast_share_no_youtube_link">لینکی یوتیوب نەدۆزرایەوە.</string>
 
     <string name="dialog_edit_song_title">دەستکاری گۆرانی</string>
     <string name="dialog_edit_song_button_delete">سڕینەوە</string>
@@ -118,5 +126,7 @@
 
     <string name="setting_title_kurdishonlysearch">تەنها گۆرانی کوردی</string>
     <string name="setting_description_kurdishonlysearch">لاپەڕەی گەڕان بە گۆرانی کوردی هەموو زاراوەکان (کورمانجی، سۆرانی، بادینی، گۆرانی، زازاکی و …) دەکاتەوە.</string>
+
+    <string name="settings_developer_credit">گەشەپێدەر: حەسەن تەکنۆ</string>
 
 </resources>

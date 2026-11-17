@@ -16,11 +16,20 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
         return downloadState
     }
 
+    /** True while bytes are downloaded or the MP3 conversion is still running. */
+    fun isBusy(): Boolean {
+        return downloadState.active || processing
+    }
+
     private var downloadThread: Future<*>? = null
     private var lastFileUri: Uri? = null
 
     private var currentDownload: YoutubeDownload? = null
     private var cancelled = false
+
+    /** Set on the download thread, read on the main thread to block a second download. */
+    @Volatile
+    private var processing = false
 
     private var lastReportedBytes = 0L
     private var lastReportTime = 0L
@@ -31,7 +40,7 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
         onSuccess: (song: Song) -> Unit
     ) {
         //only one download at a time
-        if (downloadState.active) return
+        if (downloadState.active || processing) return
 
         val download = YoutubeDownload(downloadInfo)
 
@@ -87,6 +96,16 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
                 }
 
                 val downloadedUri = lastFileUri ?: currentUri
+
+                // The bytes are on disk. Close the progress dialog now; the MP3 is
+                // prepared in the background. The manager stays busy until it is done.
+                processing = true
+                sync {
+                    downloadState.updateProgress(written, current.contentLength)
+                    downloadState.processing = true
+                    downloadState.finish()
+                }
+
                 val finishedUri = convertToMp3(downloadedUri, current.fileName)
                     ?: downloadedUri
 
@@ -95,11 +114,6 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
                 }
 
                 lastFileUri = finishedUri
-
-                sync {
-                    downloadState.updateProgress(written, current.contentLength)
-                    downloadState.finish()
-                }
 
                 val song = songManager.getSingleSong(finishedUri)
                 sync { onSuccess(song) }
@@ -116,6 +130,8 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
                     }
                 }
             } finally {
+                processing = false
+                sync { downloadState.processing = false }
                 currentDownload = null
             }
         }

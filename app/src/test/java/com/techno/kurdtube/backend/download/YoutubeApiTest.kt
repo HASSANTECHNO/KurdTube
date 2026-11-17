@@ -30,6 +30,40 @@ class YoutubeApiTest {
     }
 
     @Test
+    fun readsTheVideoIdOfShortsAndLiveLinks() {
+        assertEquals(
+            "dQw4w9WgXcQ",
+            YoutubeApi.extractVideoId("https://youtube.com/shorts/dQw4w9WgXcQ?feature=share")
+        )
+        assertEquals(
+            "dQw4w9WgXcQ",
+            YoutubeApi.extractVideoId("https://www.youtube.com/live/dQw4w9WgXcQ?si=abc")
+        )
+        assertEquals(
+            "dQw4w9WgXcQ",
+            YoutubeApi.extractVideoId("https://music.youtube.com/watch?v=dQw4w9WgXcQ&feature=share")
+        )
+    }
+
+    @Test
+    fun extractsTheYoutubeLinkFromShareText() {
+        assertEquals(
+            "https://youtu.be/dQw4w9WgXcQ?si=abc",
+            YoutubeApi.extractYoutubeUrl("Check this song\nhttps://youtu.be/dQw4w9WgXcQ?si=abc\n")
+        )
+        assertEquals(
+            "https://youtu.be/dQw4w9WgXcQ",
+            YoutubeApi.extractYoutubeUrl("(https://youtu.be/dQw4w9WgXcQ)")
+        )
+    }
+
+    @Test
+    fun ignoresShareTextWithoutAYoutubeLink() {
+        assertNull(YoutubeApi.extractYoutubeUrl("Listen to this: https://example.com/song"))
+        assertNull(YoutubeApi.extractYoutubeUrl("no link here"))
+    }
+
+    @Test
     fun ignoresPagesWithoutAVideo() {
         assertNull(YoutubeApi.extractVideoId("https://www.youtube.com/"))
         assertNull(YoutubeApi.extractVideoId("https://www.youtube.com/results?search_query=music"))

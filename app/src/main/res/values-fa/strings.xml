@@ -43,6 +43,14 @@
     <string name="dialog_download_progress">%.1f مگابایت</string>
     <string name="dialog_download_speed">%.1f مگابایت بر ثانیه</string>
     <string name="dialog_download_button_cancel">لغو دانلود</string>
+    <string name="dialog_download_button_hide">پنهان کردن</string>
+    <string name="toast_download_hidden">دانلود در پس‌زمینه ادامه پیدا می‌کند.</string>
+    <string name="toast_download_preparing">دانلود تمام شد؛ در حال آماده‌سازی آهنگ…</string>
+    <string name="toast_download_completed">آهنگ به دانلودها اضافه شد.</string>
+
+    <string name="dialog_share_download_title">دانلود ویدیو؟</string>
+    <string name="dialog_button_cancel">لغو</string>
+    <string name="toast_share_no_youtube_link">لینک یوتیوب پیدا نشد.</string>
 
     <string name="dialog_edit_song_title">ویرایش آهنگ</string>
     <string name="dialog_edit_song_button_delete">حذف</string>
@@ -118,5 +126,7 @@
 
     <string name="setting_title_kurdishonlysearch">فقط آهنگ‌های کردی</string>
     <string name="setting_description_kurdishonlysearch">صفحه جست‌وجو را با آهنگ‌های کردی همه گویش‌ها (کرمانجی، سورانی، بادینی، گورانی، زازاکی و …) باز می‌کند.</string>
+
+    <string name="settings_developer_credit">توسعه‌دهنده: حسن تکنو</string>
 
 </resources>

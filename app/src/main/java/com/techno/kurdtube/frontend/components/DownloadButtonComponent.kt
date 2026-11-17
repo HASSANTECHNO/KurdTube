@@ -2,6 +2,7 @@ package com.techno.kurdtube.frontend.components
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.techno.kurdtube.R
 import com.techno.kurdtube.frontend.modifiers.DraggableState
 import com.techno.kurdtube.frontend.modifiers.draggableAfterLongClick
+import kotlin.math.roundToInt
 
 @Composable
 fun DownloadButtonComponent(
@@ -40,6 +42,38 @@ fun DownloadButtonComponent(
                 )
             },
             text = { Text(text = downloadText) },
+            onClick = onClick
+        )
+
+    }
+
+}
+
+/** Small progress chip shown while the download dialog is hidden. Tap to reopen it. */
+@Composable
+fun DownloadProgressChipComponent(
+    visible: Boolean,
+    progress: Float,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 }),
+        exit = fadeOut() + slideOutVertically(targetOffsetY = { it / 2 })
+    ) {
+
+        ExtendedFloatingActionButton(
+            icon = {
+                CircularProgressIndicator(
+                    progress = progress.coerceIn(0f, 1f),
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp
+                )
+            },
+            text = { Text(text = "${(progress.coerceIn(0f, 1f) * 100).roundToInt()}%") },
             onClick = onClick
         )
 

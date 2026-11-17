@@ -62,6 +62,10 @@ class MainActivity : ComponentActivity() {
                             viewModel.updateManager.checkForUpdates()
                         }
                         viewModel.loadSharedYoutubeUrlInBrowser(intent)
+                        if (intent?.action == Intent.ACTION_SEND) {
+                            // mark it handled so a recreation does not repeat the share
+                            intent.action = Intent.ACTION_MAIN
+                        }
 
                     }
                     Lifecycle.Event.ON_START -> viewModel.playerManager.load(applicationContext)
@@ -79,6 +83,7 @@ class MainActivity : ComponentActivity() {
                 LOG("all permissions are granted")
                 viewModel.libraryManager.loadLibrary()
                 viewModel.libraryManager.loadPlaylists()
+                viewModel.continuePendingDownload()
             }
 
             //finish listener
@@ -109,7 +114,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        if (intent == null) return
+        setIntent(intent)
         viewModel.loadSharedYoutubeUrlInBrowser(intent)
+        if (intent.action == Intent.ACTION_SEND) {
+            // mark it handled so a recreation does not repeat the share
+            intent.action = Intent.ACTION_MAIN
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

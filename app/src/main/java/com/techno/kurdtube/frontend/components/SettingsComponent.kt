@@ -114,6 +114,15 @@ fun SettingsComponent(
             Text(text = stringResource(id = R.string.settings_button_reset))
         }
 
+        Text(
+            text = stringResource(id = R.string.settings_developer_credit),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 8.dp, bottom = 24.dp)
+                .alpha(0.5f)
+        )
+
     }
 }
 

@@ -35,7 +35,7 @@
 1. فایل `google-services.json` را در `app/` بگذار (مرحله‌ی قبل).
 2. در Android Studio: **File → Sync Project with Gradle Files** تا پلاگین Google Services فعال شود.
 3. **Build → Clean Project** و بعد **Build → Build Bundle(s)/APK(s) → Build APK(s)**
-4. نسخه باید `1.1.7` (versionCode `117`) باشد.
+4. نسخه باید `1.1.8` (versionCode `118`) باشد.
 
 ## ۵) دیدن آمار
 

@@ -121,19 +121,35 @@ object YoutubeApi {
         }
 
         val host = uri.host?.lowercase()?.removePrefix("www.") ?: return null
+        val path = uri.path.orEmpty()
 
         val id = when {
-            host == "youtu.be" -> uri.path?.trim('/')?.substringBefore('/')
+            host == "youtu.be" -> path.trim('/').substringBefore('/')
 
-            host == "youtube.com" || host.endsWith(".youtube.com") -> {
-                if (uri.path != "/watch") return null
-                parseQuery(uri.rawQuery)["v"]
+            host == "youtube.com" || host.endsWith(".youtube.com") -> when {
+                path.trimEnd('/') == "/watch" -> parseQuery(uri.rawQuery)["v"]
+                path.startsWith("/shorts/") -> path.removePrefix("/shorts/").substringBefore('/')
+                path.startsWith("/live/") -> path.removePrefix("/live/").substringBefore('/')
+                path.startsWith("/embed/") -> path.removePrefix("/embed/").substringBefore('/')
+                else -> null
             }
 
             else -> null
         }
 
         return id?.takeIf { videoIdPattern.matches(it) }
+    }
+
+    private val urlPattern = Regex("""https?://[^\s]+""")
+
+    /**
+     * Reads the first YouTube link out of shared text. The YouTube app shares the title
+     * and the link together, so the whole text cannot be used as a URL.
+     */
+    fun extractYoutubeUrl(text: String): String? {
+        return urlPattern.findAll(text)
+            .map { it.value.trimEnd('.', ',', ';', ')', ']', '}', '"', '\'', '،', '؛', '…') }
+            .firstOrNull { extractVideoId(it) != null }
     }
 
     /**

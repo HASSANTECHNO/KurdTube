@@ -15,6 +15,7 @@ import com.techno.kurdtube.backend.download.YoutubeDownloadState
 @Composable
 fun DownloadDialogComponent(
     downloadState: YoutubeDownloadState,
+    onClickHide: () -> Unit,
     onClickCancel: () -> Unit
 ) {
 
@@ -29,8 +30,10 @@ fun DownloadDialogComponent(
         titleId = R.string.dialog_download_title,
         iconId = R.drawable.icon_download,
         buttons = listOf(
+            DialogButton(textId = R.string.dialog_download_button_hide, onClick = onClickHide),
             DialogButton(textId = R.string.dialog_download_button_cancel, onClick = onClickCancel)
-        )
+        ),
+        onDismiss = onClickHide
     ) {
 
         Column(

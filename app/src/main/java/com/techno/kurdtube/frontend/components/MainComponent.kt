@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.techno.kurdtube.MainViewModel
 import com.techno.kurdtube.R
@@ -34,11 +36,21 @@ fun MainComponent(viewModel: MainViewModel, onLanguageChange: (String) -> Unit =
     val settingManager = viewModel.settingManager
     val appPermissionManager = viewModel.permissionManager
     val filePermissionManager = viewModel.libraryManager.filePermissionManager
+    val downloadState = downloadManager.getDownloadState()
+    val shareDownloadPrompt = viewModel.shareDownloadPrompt
 
     val currentScreen = screenManager.getScreen()
 
     LaunchedEffect(currentScreen) {
         viewModel.analyticsManager.logScreenView(currentScreen.name)
+    }
+
+    LaunchedEffect(downloadState.error) {
+        if (downloadState.error) viewModel.showToast(R.string.dialog_download_error)
+    }
+
+    LaunchedEffect(downloadState.processing) {
+        if (downloadState.processing) viewModel.showToast(R.string.toast_download_preparing)
     }
 
     Scaffold(
@@ -104,9 +116,22 @@ fun MainComponent(viewModel: MainViewModel, onLanguageChange: (String) -> Unit =
                                 )
 
                                 DownloadButtonComponent(
-                                    visible = viewModel.hasFoundDownloadInfo(),
+                                    visible = viewModel.hasFoundDownloadInfo() &&
+                                            !downloadState.active &&
+                                            !downloadState.processing,
                                     onClick = {
                                         viewModel.startDownload()
+                                    },
+                                    modifier = Modifier
+                                        .padding(16.dp)
+                                        .align(Alignment.BottomCenter)
+                                )
+
+                                DownloadProgressChipComponent(
+                                    visible = downloadState.active && downloadState.hidden,
+                                    progress = downloadState.progressPercent,
+                                    onClick = {
+                                        viewModel.showDownloadDialog()
                                     },
                                     modifier = Modifier
                                         .padding(16.dp)
@@ -239,7 +264,6 @@ fun MainComponent(viewModel: MainViewModel, onLanguageChange: (String) -> Unit =
             val update = updateManager.isUpdateAvailable()
             val missingPermission = appPermissionManager.getMissingPermission()
             val filePermissionRequest = filePermissionManager.getRequest()
-            val downloadState = downloadManager.getDownloadState()
             val editSong = libraryManager.getEditSong()
             val editPlaylist = libraryManager.getEditPlaylist()
             val createPlaylistDialogOpen = libraryManager.isCreatePlaylistDialogOpen()
@@ -291,13 +315,41 @@ fun MainComponent(viewModel: MainViewModel, onLanguageChange: (String) -> Unit =
                     )
                 }
 
-                downloadState.active -> {
+                downloadState.active && !downloadState.hidden -> {
                     DownloadDialogComponent(
                         downloadState = downloadState,
+                        onClickHide = {
+                            viewModel.hideDownloadDialog()
+                        },
                         onClickCancel = {
                             downloadManager.cancel()
                         }
                     )
+                }
+
+                shareDownloadPrompt != null -> {
+                    DialogComponent(
+                        titleId = R.string.dialog_share_download_title,
+                        iconId = R.drawable.icon_download,
+                        buttons = listOf(
+                            DialogButton(
+                                textId = R.string.button_download,
+                                onClick = { viewModel.startDownload() },
+                                enabled = !downloadState.active && !downloadState.processing
+                            ),
+                            DialogButton(
+                                textId = R.string.dialog_button_cancel,
+                                onClick = { viewModel.clearShareDownloadPrompt() }
+                            )
+                        ),
+                        onDismiss = { viewModel.clearShareDownloadPrompt() }
+                    ) {
+                        Text(
+                            text = shareDownloadPrompt.videoTitle,
+                            maxLines = 4,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
 
                 editSong != null -> {

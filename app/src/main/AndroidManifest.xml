@@ -40,12 +40,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Appears in the Android share sheet. ACTION_SEND carries the link in
+                 EXTRA_TEXT, not as a data URI, so only the MIME type is matched here. -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data
-                    android:host="youtube.com"
-                    android:mimeType="text/*" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
 
         </activity>
