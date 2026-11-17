@@ -1,6 +1,5 @@
 package com.techno.kurdtube.frontend.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,11 +24,11 @@ import com.techno.kurdtube.R
 
 @ExperimentalMaterial3Api
 @Composable
-fun TopBarComponent(onClickTitleText: () -> Unit) {
+fun TopBarComponent() {
 
     CenterAlignedTopAppBar(
         title = {
-            ClickableAppName(onClick = onClickTitleText)
+            AppName()
         },
         modifier = Modifier.shadow(4.dp)
     )
@@ -37,13 +36,12 @@ fun TopBarComponent(onClickTitleText: () -> Unit) {
 }
 
 @Composable
-fun ClickableAppName(onClick: () -> Unit) {
+fun AppName() {
     //the logo must sit right next to the K in every language, so the row is
     //forced to left-to-right layout instead of flipping with the locale
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable(onClick = onClick)
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.logo),

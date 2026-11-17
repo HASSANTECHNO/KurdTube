@@ -39,9 +39,7 @@ fun MainComponent(viewModel: MainViewModel, onLanguageChange: (String) -> Unit =
 
         topBar = {
             if (!screenManager.isLandscapeOrientation()) {
-                TopBarComponent(onClickTitleText = {
-                    viewModel.openUrlInStandardBrowser(viewModel.getGithubUrl())
-                })
+                TopBarComponent()
             }
         },
 
@@ -62,10 +60,7 @@ fun MainComponent(viewModel: MainViewModel, onLanguageChange: (String) -> Unit =
                 if (screenManager.isLandscapeOrientation()) {
                     SideNavigationComponent(
                         selectedScreen = screenManager.getScreen(),
-                        onClick = { screen -> screenManager.openScreen(screen) },
-                        onClickTitleText = {
-                            viewModel.openUrlInStandardBrowser(viewModel.getGithubUrl())
-                        }
+                        onClick = { screen -> screenManager.openScreen(screen) }
                     )
                 }
 

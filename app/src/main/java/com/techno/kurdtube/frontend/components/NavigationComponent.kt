@@ -45,8 +45,7 @@ fun BottomNavigationComponent(
 @Composable
 fun SideNavigationComponent(
     selectedScreen: Screen,
-    onClick: (screen: Screen) -> Unit,
-    onClickTitleText: () -> Unit
+    onClick: (screen: Screen) -> Unit
 ) {
 
     NavigationRail(modifier = Modifier.shadow(4.dp)) {
@@ -56,7 +55,7 @@ fun SideNavigationComponent(
             modifier = Modifier.fillMaxHeight()
         ) {
 
-            ClickableAppName(onClick = onClickTitleText)
+            AppName()
 
             Screen.values().forEach { screen ->
 
