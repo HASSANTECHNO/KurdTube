@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import com.techno.kurdtube.backend.analytics.AnalyticsManager
 import com.techno.kurdtube.backend.download.YoutubeDownloadInfo
 import com.techno.kurdtube.backend.download.YoutubeDownloadManager
 import com.techno.kurdtube.backend.library.LibraryManager
@@ -41,7 +42,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val libraryManager = LibraryManager(getAppContext())
 
-    val playerManager = PlayerManager()
+    val analyticsManager = AnalyticsManager(getAppContext())
+
+    val playerManager = PlayerManager(analyticsManager)
 
     val settingManager = SettingManager(getAppContext())
 
@@ -126,10 +129,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startDownload() {
         val downloadInfo = downloadInfoState ?: return
+        if (downloadManager.getDownloadState().active) return
         val bufferBytes = settingManager.getSetting(Setting.DOWNLOAD_BUFFER).toInt() * 1000L
+        analyticsManager.logDownloadStarted()
         downloadManager.start(downloadInfo, bufferBytes) { song ->
 
             libraryManager.addToSongs(song)
+
+            analyticsManager.logDownloadCompleted()
 
             sync {
                 if (settingManager.getSetting(Setting.PLAY_SONG_AFTER_DOWNLOAD).toBoolean()) {
@@ -239,6 +246,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setLanguage(languageCode: String) {
         LocaleManager.setLanguage(getAppContext(), languageCode)
+        analyticsManager.logLanguageChanged(languageCode)
     }
 
     // other ==========================================

@@ -11,13 +11,14 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import com.techno.kurdtube.backend.analytics.AnalyticsManager
 import com.techno.kurdtube.backend.library.Song
 import com.techno.kurdtube.backend.utils.LOG
 import org.json.JSONObject
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
-class PlayerManager {
+class PlayerManager(private val analytics: AnalyticsManager? = null) {
 
     private val playerState = PlayerState()
 
@@ -132,6 +133,11 @@ class PlayerManager {
 
         player.prepare()
         player.play()
+
+        analytics?.logSongPlay(
+            shuffle = player.shuffleModeEnabled,
+            queueSize = songList.size
+        )
 
     }
 

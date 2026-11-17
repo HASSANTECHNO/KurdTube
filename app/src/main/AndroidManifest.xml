@@ -4,6 +4,10 @@
 
     <!-- update com.techno.kurdtube.backend.permission.AppPermission.kt too -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Analytics must not read the advertising ID; only aggregate usage is sent. -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -19,6 +23,11 @@
         android:roundIcon="@mipmap/logo_round"
         android:supportsRtl="true"
         android:theme="@style/Main.Splash">
+
+        <!-- Firebase Analytics: no advertising ID, no personalised ads. -->
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
 
         <activity
             android:name=".MainActivity"

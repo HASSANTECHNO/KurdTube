@@ -38,6 +38,7 @@ flowchart TD
 - **فهرست‌های پخش:** بارگذاری و مدیریت پلی‌لیست‌ها.
 - **تنظیمات نمایشی:** پشتیبانی از تم روشن، تاریک و حالت هماهنگ با سیستم.
 - **اشتراک‌گذاری لینک:** دریافت لینک YouTube از طریق قابلیت اشتراک‌گذاری اندروید و بازکردن آن در برنامه.
+- **آمار ناشناس استفاده:** شمارش کاربران فعال و رویدادهای صفحه/دانلود با Firebase Analytics (بدون Advertising ID).
 
 ## 🧩 فناوری‌ها
 
@@ -48,6 +49,11 @@ flowchart TD
 | Android Lifecycle | مدیریت وضعیت و چرخه‌ی حیات |
 | Media Player | پخش رسانه |
 | YouTube URLs | بازکردن و پردازش لینک‌های محتوا |
+| Firebase Analytics | آمار ناشناس استفاده |
+
+## 🔥 راه‌اندازی Firebase Analytics
+
+برای فعال کردن آمار ناشناس استفاده، فایل `app/google-services.json` را از Firebase Console بگیر و کنار `app/build.gradle` بگذار. راهنمای کامل: [`FIREBASE_SETUP.md`](FIREBASE_SETUP.md)
 
 ---
 

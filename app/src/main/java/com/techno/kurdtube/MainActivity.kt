@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        viewModel.analyticsManager.logAppStart()
 
         setContent {
 

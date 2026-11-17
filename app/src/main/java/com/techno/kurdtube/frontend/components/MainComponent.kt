@@ -35,6 +35,12 @@ fun MainComponent(viewModel: MainViewModel, onLanguageChange: (String) -> Unit =
     val appPermissionManager = viewModel.permissionManager
     val filePermissionManager = viewModel.libraryManager.filePermissionManager
 
+    val currentScreen = screenManager.getScreen()
+
+    LaunchedEffect(currentScreen) {
+        viewModel.analyticsManager.logScreenView(currentScreen.name)
+    }
+
     Scaffold(
 
         topBar = {
@@ -340,6 +346,7 @@ fun MainComponent(viewModel: MainViewModel, onLanguageChange: (String) -> Unit =
                         songs = libraryManager.getSongs(),
                         onClickCreate = { name, playlist ->
                             libraryManager.createPlaylist(name, playlist)
+                            viewModel.analyticsManager.logPlaylistCreated()
                             libraryManager.closeCreatePlaylistDialog()
                         },
                         onDismiss = {

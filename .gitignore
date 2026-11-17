@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Firebase project config: download it from the Firebase console (see FIREBASE_SETUP.md).
+/app/google-services.json
