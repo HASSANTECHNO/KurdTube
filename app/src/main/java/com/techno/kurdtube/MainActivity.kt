@@ -32,10 +32,10 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        //must run before super.onCreate(), otherwise the splash screen is not installed
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         LOG("onCreate MainActivity")
-
-        installSplashScreen()
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.analyticsManager.logAppStart()
