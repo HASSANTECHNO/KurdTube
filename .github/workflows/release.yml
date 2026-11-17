@@ -66,18 +66,27 @@ jobs:
         run: |
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs KurdTube-*.apk
 
-      - name: Show APK checksum
-        run: sha256sum KurdTube-*.apk
+      - name: Prepare checksum and release body
+        run: |
+          APK=$(ls KurdTube-*.apk)
+          HASH=$(sha256sum "$APK" | cut -d' ' -f1)
+          echo "$HASH  $(basename "$APK")" > "${APK}.sha256"
+          cat RELEASE_NOTES_1.1.8.md > release_body.md
+          printf '\n## SHA-256\n\n```\n%s\n```\n' "$HASH" >> release_body.md
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: KurdTube-release-apk
-          path: KurdTube-*.apk
+          path: |
+            KurdTube-*.apk
+            KurdTube-*.apk.sha256
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: KurdTube-*.apk
-          generate_release_notes: true
+          body_path: release_body.md
+          files: |
+            KurdTube-*.apk
+            KurdTube-*.apk.sha256
