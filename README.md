@@ -55,6 +55,56 @@ flowchart TD
 
 برای فعال کردن آمار ناشناس استفاده، فایل `app/google-services.json` را از Firebase Console بگیر و کنار `app/build.gradle` بگذار. راهنمای کامل: [`FIREBASE_SETUP.md`](FIREBASE_SETUP.md)
 
+## 📦 دانلود و نصب
+
+نسخه‌های رسمی از بخش [Releases](https://github.com/HASSANTECHNO/KurdTube/releases) قابل دانلود هستند.
+
+1. فایل `KurdTube-1.1.8.apk` را از آخرین Release دانلود کن.
+2. آن را نصب کن. اگر Play Protect پیام **«App scan recommended»** نشان داد، روی **«Install without scanning»** بزن. این پیام برای برنامه‌های خارج از Google Play عادی است و به معنی ویروس نیست.
+3. برای اطمینان از سالم بودن فایل، مقدار SHA-256 داخل صفحه‌ی Release را با مقدار فایل دانلودشده مقایسه کن.
+
+> اگر قبلاً نسخه‌ی آزمایشی (debug) را نصب کرده‌ای، چون امضای نسخه‌ی رسمی متفاوت است، باید نسخه‌ی قبلی را حذف کنی و بعد APK جدید را نصب کنی.
+
+## 🚀 انتشار نسخه‌ی جدید (GitHub Actions)
+
+مخزن برای ساخت و انتشار خودکار APK امضاشده آماده است. فایل ورک‌فلو: [`.github/workflows/release.yml`](.github/workflows/release.yml)
+
+### Secretهای لازم در GitHub
+
+در `Settings → Secrets and variables → Actions` این مقادیر را اضافه کن:
+
+| Secret | مقدار |
+|---|---|
+| `KEYSTORE_BASE64` | خروجی Base64 فایل keystore |
+| `KEYSTORE_PASSWORD` | رمز keystore |
+| `KEY_ALIAS` | `kurdtube` |
+| `KEY_PASSWORD` | رمز کلید (در این پروژه همان رمز keystore است) |
+
+ساخت مقدار Base64 در Termux:
+
+```bash
+base64 -w0 keystore/kurdtube-release.jks
+```
+
+### ساخت Release
+
+```bash
+git tag v1.1.8
+git push origin v1.1.8
+```
+
+با push شدن تگ، GitHub Actions فایل APK را می‌سازد و به Release همان تگ پیوست می‌کند.
+
+### ساخت دستی روی کامپیوتر
+
+```bash
+cp keystore.properties.example keystore.properties
+# مقادیر واقعی را داخل keystore.properties بگذار
+./gradlew assembleRelease
+```
+
+فایل خروجی: `app/build/outputs/apk/release/app-release.apk`
+
 ---
 
 <p align="center">

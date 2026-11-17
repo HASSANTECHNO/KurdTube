@@ -47,6 +47,7 @@
     <string name="toast_download_hidden">دانلود در پس‌زمینه ادامه پیدا می‌کند.</string>
     <string name="toast_download_preparing">دانلود تمام شد؛ در حال آماده‌سازی آهنگ…</string>
     <string name="toast_download_completed">آهنگ به دانلودها اضافه شد.</string>
+    <string name="toast_download_unavailable">این ویدیو برای دانلود آماده نشد. VPN یا شبکه را عوض کنید یا ویدیوی دیگری امتحان کنید.</string>
 
     <string name="dialog_share_download_title">دانلود ویدیو؟</string>
     <string name="dialog_button_cancel">لغو</string>

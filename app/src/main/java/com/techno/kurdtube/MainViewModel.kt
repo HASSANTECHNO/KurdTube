@@ -234,6 +234,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         pendingSharedVideoId = null
     }
 
+    private var lastDownloadUnavailableToastTime = 0L
+
+    /** YouTube sometimes refuses to hand out an audio stream for the current network. */
+    fun showDownloadUnavailableToast() {
+        val now = System.currentTimeMillis()
+        if (now - lastDownloadUnavailableToastTime < 5000L) return
+        lastDownloadUnavailableToastTime = now
+        showToast(R.string.toast_download_unavailable)
+    }
+
     // update ==========================================
 
     val updateManager = UpdateManager(getAppContext())

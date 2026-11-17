@@ -47,6 +47,7 @@
     <string name="toast_download_hidden">داگرتن لە پاشەوە بەردەوام دەبێت.</string>
     <string name="toast_download_preparing">داگرتن تەواو بوو؛ گۆرانی ئامادە دەکرێت…</string>
     <string name="toast_download_completed">گۆرانی زیادکرا بۆ داگرتنەکان.</string>
+    <string name="toast_download_unavailable">ئەم ڤیدیۆیە بۆ داگرتن ئامادە نەبوو. ڤی پی ئێن یان تۆڕ بگۆڕە یان ڤیدیۆیەکی تر تاقی بکەرەوە.</string>
 
     <string name="dialog_share_download_title">داگرتنی ڤیدیۆ؟</string>
     <string name="dialog_button_cancel">پاشگەزبوونەوە</string>

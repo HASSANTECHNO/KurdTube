@@ -32,6 +32,9 @@ class YoutubeBrowser(context: Context) : WebView(context) {
 
     var downloadListener: ((YoutubeDownloadInfo?) -> Unit)? = null
 
+    /** Called when a watch page is open but YouTube does not provide an audio stream. */
+    var resolveErrorListener: (() -> Unit)? = null
+
     private var videoTitle: String? = null
     private var videoUrl: Uri? = null
     private var downloadUrl: Uri? = null
@@ -75,6 +78,11 @@ class YoutubeBrowser(context: Context) : WebView(context) {
                 }
             } catch (error: Exception) {
                 LOG("could not resolve the audio stream: ${error.message}")
+                post {
+                    if (generation == resolveGeneration) {
+                        resolveErrorListener?.invoke()
+                    }
+                }
             }
         }.start()
     }

@@ -16,7 +16,8 @@ var currentBrowser: YoutubeBrowser? = null //todo improve
 @Composable
 fun BrowserComponent(
     onLoad: (browser: YoutubeBrowser, firstLoad: Boolean) -> Unit,
-    onFindDownload: (downloadInfo: YoutubeDownloadInfo?) -> Unit
+    onFindDownload: (downloadInfo: YoutubeDownloadInfo?) -> Unit,
+    onResolveError: () -> Unit = {}
 ) {
 
     var progress by remember { mutableStateOf(100) }
@@ -51,6 +52,7 @@ fun BrowserComponent(
                 val browser = currentBrowser!!
                 onLoad(browser, first)
                 browser.downloadListener = onFindDownload
+                browser.resolveErrorListener = onResolveError
                 browser.progressListener = { newProgress ->
                     progress = newProgress
                 }

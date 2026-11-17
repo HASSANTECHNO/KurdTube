@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.techno.kurdtube.MainViewModel
@@ -19,6 +20,7 @@ import com.techno.kurdtube.R
 import com.techno.kurdtube.backend.library.Playlist
 import com.techno.kurdtube.backend.screen.Screen
 import com.techno.kurdtube.backend.setting.Setting
+import com.techno.kurdtube.backend.theme.ThemeManager
 
 
 @OptIn(
@@ -28,6 +30,7 @@ import com.techno.kurdtube.backend.setting.Setting
 @Composable
 fun MainComponent(viewModel: MainViewModel, onLanguageChange: (String) -> Unit = {}) {
 
+    val context = LocalContext.current
     val screenManager = viewModel.screenManager
     val libraryManager = viewModel.libraryManager
     val playerManager = viewModel.playerManager
@@ -112,6 +115,9 @@ fun MainComponent(viewModel: MainViewModel, onLanguageChange: (String) -> Unit =
                                     },
                                     onFindDownload = { downloadInfo ->
                                         viewModel.updateDownloadInfo(downloadInfo = downloadInfo)
+                                    },
+                                    onResolveError = {
+                                        viewModel.showDownloadUnavailableToast()
                                     }
                                 )
 
@@ -247,6 +253,10 @@ fun MainComponent(viewModel: MainViewModel, onLanguageChange: (String) -> Unit =
                                     settingManager.setSetting(key, value)
                                     if (key == Setting.LANGUAGE.name) {
                                         onLanguageChange(value)
+                                    }
+                                    if (key == Setting.THEME.name) {
+                                        //store the new mode for the next cold-start splash
+                                        ThemeManager.applyNightMode(context, value)
                                     }
                                 }
                             )

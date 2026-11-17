@@ -16,3 +16,12 @@ local.properties
 
 # Firebase project config: download it from the Firebase console (see FIREBASE_SETUP.md).
 /app/google-services.json
+
+# Release signing files: never commit the keystore or its passwords.
+/keystore/
+keystore.properties
+*.jks
+*.keystore
+
+# Local JDK package used on Termux.
+/openjdk-17-termux.deb
