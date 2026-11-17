@@ -112,9 +112,8 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        if (intent == null) return
         setIntent(intent)
         viewModel.loadSharedYoutubeUrlInBrowser(intent)
         if (intent.action == Intent.ACTION_SEND) {
