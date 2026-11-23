@@ -2,19 +2,50 @@ package com.techno.kurdtube.frontend.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.techno.kurdtube.R
 
 // Neutral accent: black in light mode, white in dark mode (no purple).
 private val AccentBlack = Color(0xFF000000)
 private val AccentWhite = Color(0xFFFFFFFF)
 
+//Kurdish Sorani needs a font with the extra letters (ڕ ڵ ۆ ێ ە); the system
+//font falls back to Arabic shapes for some of them on many devices.
+private val KurdishSoraniFontFamily = FontFamily(
+    Font(R.font.rudaw_regular)
+)
+
+private val KurdishSoraniTypography = Typography().let { base ->
+    Typography(
+        displayLarge = base.displayLarge.copy(fontFamily = KurdishSoraniFontFamily),
+        displayMedium = base.displayMedium.copy(fontFamily = KurdishSoraniFontFamily),
+        displaySmall = base.displaySmall.copy(fontFamily = KurdishSoraniFontFamily),
+        headlineLarge = base.headlineLarge.copy(fontFamily = KurdishSoraniFontFamily),
+        headlineMedium = base.headlineMedium.copy(fontFamily = KurdishSoraniFontFamily),
+        headlineSmall = base.headlineSmall.copy(fontFamily = KurdishSoraniFontFamily),
+        titleLarge = base.titleLarge.copy(fontFamily = KurdishSoraniFontFamily),
+        titleMedium = base.titleMedium.copy(fontFamily = KurdishSoraniFontFamily),
+        titleSmall = base.titleSmall.copy(fontFamily = KurdishSoraniFontFamily),
+        bodyLarge = base.bodyLarge.copy(fontFamily = KurdishSoraniFontFamily),
+        bodyMedium = base.bodyMedium.copy(fontFamily = KurdishSoraniFontFamily),
+        bodySmall = base.bodySmall.copy(fontFamily = KurdishSoraniFontFamily),
+        labelLarge = base.labelLarge.copy(fontFamily = KurdishSoraniFontFamily),
+        labelMedium = base.labelMedium.copy(fontFamily = KurdishSoraniFontFamily),
+        labelSmall = base.labelSmall.copy(fontFamily = KurdishSoraniFontFamily),
+    )
+}
+
 @Composable
 fun MainTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    useKurdishSoraniFont: Boolean = false,
     content: @Composable () -> Unit
 ) {
 
@@ -75,7 +106,8 @@ fun MainTheme(
     }
 
     MaterialTheme(
-        colorScheme = colors
+        colorScheme = colors,
+        typography = if (useKurdishSoraniFont) KurdishSoraniTypography else Typography()
     ) {
 
         val systemUiController = rememberSystemUiController()

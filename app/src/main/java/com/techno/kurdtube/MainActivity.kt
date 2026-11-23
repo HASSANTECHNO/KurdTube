@@ -17,6 +17,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelProvider
+import com.techno.kurdtube.backend.locale.AppLanguage
 import com.techno.kurdtube.backend.theme.ThemeManager
 import com.techno.kurdtube.backend.utils.LOG
 import com.techno.kurdtube.frontend.components.MainComponent
@@ -48,7 +49,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            MainTheme(darkTheme = viewModel.getTheme()) {
+            val useKurdishSoraniFont = remember {
+                viewModel.getLanguage() == AppLanguage.KURDISH_SORANI
+            }
+
+            MainTheme(
+                darkTheme = viewModel.getTheme(),
+                useKurdishSoraniFont = useKurdishSoraniFont
+            ) {
                 MainComponent(
                     viewModel = viewModel,
                     onLanguageChange = { languageCode ->
