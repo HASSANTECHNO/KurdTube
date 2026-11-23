@@ -63,7 +63,8 @@
     <string name="dialog_update_button_cancel">لغو</string>
     <string name="dialog_update_button_download">دانلود</string>
     <string name="dialog_update_button_open">نمایش در مرورگر</string>
-    <string name="toast_update_start_download">در حال دانلود به‌روزرسانی… اعلان‌ها را ببینید.</string>
+    <string name="toast_update_start_download">در حال دانلود به‌روزرسانی… پس از پایان دانلود، نصب‌کننده باز می‌شود.</string>
+    <string name="toast_update_allow_install">اجازه‌ی نصب به‌روزرسانی را برای KurdTube فعال کنید تا به‌روزرسانی خودکار نصب شود.</string>
 
     <string name="dialog_create_playlist_title">ساخت پلی‌لیست</string>
     <string name="dialog_create_playlist_button_create">ساخت</string>

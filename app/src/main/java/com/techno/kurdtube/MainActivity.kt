@@ -17,7 +17,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelProvider
-import com.techno.kurdtube.backend.locale.AppLanguage
 import com.techno.kurdtube.backend.theme.ThemeManager
 import com.techno.kurdtube.backend.utils.LOG
 import com.techno.kurdtube.frontend.components.MainComponent
@@ -49,14 +48,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            val useKurdishSoraniFont = remember {
-                viewModel.getLanguage() == AppLanguage.KURDISH_SORANI
-            }
-
-            MainTheme(
-                darkTheme = viewModel.getTheme(),
-                useKurdishSoraniFont = useKurdishSoraniFont
-            ) {
+            MainTheme(darkTheme = viewModel.getTheme()) {
                 MainComponent(
                     viewModel = viewModel,
                     onLanguageChange = { languageCode ->
@@ -83,6 +75,8 @@ class MainActivity : ComponentActivity() {
 
                     }
                     Lifecycle.Event.ON_START -> viewModel.playerManager.load(applicationContext)
+                    //opens the installer of an update that finished downloading in the background
+                    Lifecycle.Event.ON_RESUME -> viewModel.updateManager.resumePendingInstall()
                     Lifecycle.Event.ON_STOP -> viewModel.playerManager.unload()
                     Lifecycle.Event.ON_DESTROY -> currentBrowser = null
                     else -> {}

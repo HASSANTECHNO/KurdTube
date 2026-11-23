@@ -63,7 +63,8 @@
     <string name="dialog_update_button_cancel">پاشگەزبوونەوە</string>
     <string name="dialog_update_button_download">داگرتن</string>
     <string name="dialog_update_button_open">پیشاندان لە وێبگەڕ</string>
-    <string name="toast_update_start_download">نوێکردنەوە دادەگیرێت… ئاگادارنامە ببینە.</string>
+    <string name="toast_update_start_download">نوێکردنەوە دادەگیرێت… کاتێک داگرتن تەواو بوو، دامەزرێنەر دەکرێتەوە.</string>
+    <string name="toast_update_allow_install">ڕێگە بدە بە دامەزراندنی نوێکردنەوە بۆ KurdTube، ئەوسا نوێکردنەوە خۆکارانە دادەمەزرێت.</string>
 
     <string name="dialog_create_playlist_title">دروستکردنی لیستی لێدان</string>
     <string name="dialog_create_playlist_button_create">دروستکردن</string>

@@ -5,6 +5,8 @@
     <!-- update com.techno.kurdtube.backend.permission.AppPermission.kt too -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Downloaded updates are handed to the system package installer. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- Analytics must not read the advertising ID; only aggregate usage is sent. -->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID"
         tools:node="remove" />
@@ -50,6 +52,17 @@
             </intent-filter>
 
         </activity>
+
+        <!-- Lets the package installer read the downloaded update APK. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <service
             android:name="com.techno.kurdtube.backend.player.PlayerService"
