@@ -10,6 +10,8 @@
   <img alt="Android" src="https://img.shields.io/badge/Android-اپلیکیشن-3DDC84?logo=android&logoColor=white" />
   <img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-توسعه-7F52FF?logo=kotlin&logoColor=white" />
   <img alt="Jetpack Compose" src="https://img.shields.io/badge/Jetpack%20Compose-رابط%20کاربری-4285F4?logo=jetpackcompose&logoColor=white" />
+  <a href="https://github.com/HASSANTECHNO/KurdTube/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/HASSANTECHNO/KurdTube?label=release&color=black" /></a>
+  <a href="https://github.com/HASSANTECHNO/KurdTube/actions/workflows/ci.yml"><img alt="Build and test" src="https://github.com/HASSANTECHNO/KurdTube/actions/workflows/ci.yml/badge.svg" /></a>
 </p>
 
 ---
@@ -17,6 +19,16 @@
 ## 🎬 KurdTube چیست؟
 
 KurdTube یک اپلیکیشن اندرویدی با رابط کاربری Jetpack Compose است که امکانات مرور محتوای YouTube، دریافت رسانه، پخش فایل‌های صوتی و مدیریت کتابخانه‌ی شخصی را در یک محیط واحد گرد هم می‌آورد.
+
+## 📌 وضعیت نسخه
+
+| مورد | مقدار |
+|---|---|
+| آخرین نسخه | `1.2` |
+| حداقل اندروید | 7.0 (API 25) |
+| targetSdk | 35 |
+| زبان‌ها | English، کوردی سورانی، فارسی |
+| تغییرات این نسخه | [`RELEASE_NOTES_1.2.md`](RELEASE_NOTES_1.2.md) |
 
 ## 🧭 مسیر استفاده
 
@@ -59,7 +71,7 @@ flowchart TD
 
 نسخه‌های رسمی از بخش [Releases](https://github.com/HASSANTECHNO/KurdTube/releases) قابل دانلود هستند.
 
-1. فایل `KurdTube-1.1.8.apk` را از آخرین Release دانلود کن.
+1. فایل `KurdTube-1.2.apk` را از آخرین Release دانلود کن.
 2. آن را نصب کن. اگر Play Protect پیام **«App scan recommended»** نشان داد، روی **«Install without scanning»** بزن. این پیام برای برنامه‌های خارج از Google Play عادی است و به معنی ویروس نیست.
 3. برای اطمینان از سالم بودن فایل، مقدار SHA-256 داخل صفحه‌ی Release یا فایل `.sha256` پیوست‌شده را با مقدار فایل دانلودشده مقایسه کن.
 
@@ -89,8 +101,8 @@ base64 -w0 keystore/kurdtube-release.jks
 ### ساخت Release
 
 ```bash
-git tag v1.1.8
-git push origin v1.1.8
+git tag v1.2
+git push origin v1.2
 ```
 
 با push شدن تگ، GitHub Actions فایل APK را می‌سازد و به Release همان تگ پیوست می‌کند.

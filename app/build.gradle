@@ -26,8 +26,8 @@ android {
         // Android 16 (API 36) Play Protect blocks/warns when targetSdk is more
         // than 2 levels below the device API; keep this at 35+.
         targetSdk 35
-        versionCode 118
-        versionName "1.1.8"
+        versionCode 120
+        versionName "1.2"
 
         vectorDrawables {
             useSupportLibrary true
@@ -62,6 +62,12 @@ android {
         compose = true
         // AnalyticsManager reads BuildConfig.VERSION_NAME for the app_start event.
         buildConfig = true
+    }
+
+    testOptions {
+        // Android framework methods (android.util.Log, ...) have no implementation
+        // in plain JVM unit tests; return the default value instead of throwing.
+        unitTests.returnDefaultValues = true
     }
 
     composeOptions {
@@ -107,6 +113,10 @@ dependencies {
         //would duplicate the androidx classes; only the native encoder is needed
         exclude group: 'com.android.support'
     }
+
+    testImplementation "junit:junit:4.13.2"
+    // Android's org.json classes are stubs in unit tests; use the real implementation.
+    testImplementation "org.json:json:20240303"
 
 }
 

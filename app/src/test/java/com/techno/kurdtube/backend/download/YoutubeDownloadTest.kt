@@ -73,7 +73,10 @@ class YoutubeDownloadTest {
         download.start(output, 64 * 1024L) { }
 
         assertTrue(data.contentEquals(output.toByteArray()))
-        assertEquals("bytes=${64 * 1024}-", server!!.requests[1].headers["range"])
+        // The downloader asks for a bounded chunk that starts at the last written byte
+        // (bytes=65536-<end>), which is what googlevideo accepts.
+        val range = server!!.requests[1].headers["range"].orEmpty()
+        assertTrue("range was $range", range.startsWith("bytes=${64 * 1024}-") && !range.endsWith("-"))
     }
 
     @Test

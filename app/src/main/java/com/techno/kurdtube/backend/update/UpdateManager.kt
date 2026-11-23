@@ -47,49 +47,40 @@ class UpdateManager(context: Context) {
             val currentVersion = appVersion ?: return@async
             //only offer a real upgrade: comparing for inequality would let an older
             //GitHub release "update" (and downgrade) a newer local build
-            if (isNewerVersion(update.version, currentVersion)) {
+            if (VersionComparator.isNewerVersion(update.version, currentVersion)) {
                 updateAvailableState = update
             }
         }
-    }
-
-    /** Returns true when [remote] is a strictly newer dotted version than [current]. */
-    private fun isNewerVersion(remote: String, current: String): Boolean {
-        val remoteParts = remote.split('.', '-', '_', '+').mapNotNull { it.toIntOrNull() }
-        val currentParts = current.split('.', '-', '_', '+').mapNotNull { it.toIntOrNull() }
-
-        val size = maxOf(remoteParts.size, currentParts.size)
-        for (i in 0 until size) {
-            val remotePart = remoteParts.getOrElse(i) { 0 }
-            val currentPart = currentParts.getOrElse(i) { 0 }
-            if (remotePart != currentPart) {
-                return remotePart > currentPart
-            }
-        }
-
-        return false
     }
 
     private fun getLastUpdate(): Update? {
         val text = URL(githubReleasesUrl).readText()
 
         val releasesJson = JSONArray(text)
-        if (releasesJson.length() == 0) {
-            return null
-        }
+        for (i in 0 until releasesJson.length()) {
+            val releaseJson = releasesJson.getJSONObject(i)
 
-        val releaseJson = releasesJson.getJSONObject(0)
-        val title = releaseJson.getString("name")
-        val version = releaseJson.getString("tag_name")
-        val description = releaseJson.getString("body")
-        val githubUrl = releaseJson.getString("html_url")
+            // drafts and prereleases must never be offered to a stable build
+            if (releaseJson.optBoolean("draft") || releaseJson.optBoolean("prerelease")) {
+                continue
+            }
 
-        val assetsJson = releaseJson.getJSONArray("assets")
-        for (i in 0 until assetsJson.length()) {
-            val assetJson = assetsJson.getJSONObject(i)
-            val downloadUrl = assetJson.getString("browser_download_url")
-            if (downloadUrl.endsWith(".apk")) {
-                return Update(title, version, description, downloadUrl, githubUrl)
+            val version = releaseJson.optString("tag_name")
+            if (version.isBlank()) {
+                continue
+            }
+
+            val title = releaseJson.optString("name").ifBlank { version }
+            val description = releaseJson.optString("body")
+            val githubUrl = releaseJson.optString("html_url")
+
+            val assetsJson = releaseJson.getJSONArray("assets")
+            for (j in 0 until assetsJson.length()) {
+                val assetJson = assetsJson.getJSONObject(j)
+                val downloadUrl = assetJson.getString("browser_download_url")
+                if (downloadUrl.endsWith(".apk", ignoreCase = true)) {
+                    return Update(title, version, description, downloadUrl, githubUrl)
+                }
             }
         }
         return null

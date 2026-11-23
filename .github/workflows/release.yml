@@ -17,6 +17,16 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
 
+      - name: Read app version
+        id: version
+        run: |
+          VERSION=$(sed -n 's/.*versionName "\([^"]*\)".*/\1/p' app/build.gradle | head -1)
+          if [ -z "$VERSION" ]; then
+            echo "::error::Could not read versionName from app/build.gradle"
+            exit 1
+          fi
+          echo "name=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Detect prebuilt APK
         id: prebuilt
         run: |
@@ -129,16 +139,27 @@ jobs:
 
       - name: Verify APK signature and version
         run: |
+          VERSION_NAME=$(sed -n 's/.*versionName "\([^"]*\)".*/\1/p' app/build.gradle | head -1)
+          VERSION_CODE=$(sed -n 's/.*versionCode \([0-9]*\).*/\1/p' app/build.gradle | head -1)
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs KurdTube-*.apk | tee apksigner.log
           grep -qi "f217c67e4da797edfe2d4fe9bd489449325d912648727ec038fc0b59a16a8753" apksigner.log
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging KurdTube-*.apk | grep -q "package: name='com.techno.kurdtube' versionCode='118' versionName='1.1.8'"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging KurdTube-*.apk | grep -q "package: name='com.techno.kurdtube' versionCode='${VERSION_CODE}' versionName='${VERSION_NAME}'"
 
       - name: Prepare checksum and release body
         run: |
           APK=$(ls KurdTube-*.apk)
+          VERSION=$(sed -n 's/.*versionName "\([^"]*\)".*/\1/p' app/build.gradle | head -1)
           HASH=$(sha256sum "$APK" | cut -d' ' -f1)
           echo "$HASH  $(basename "$APK")" > "${APK}.sha256"
-          cat RELEASE_NOTES_1.1.8.md > release_body.md
+          NOTES="RELEASE_NOTES_${VERSION}.md"
+          if [ ! -f "$NOTES" ]; then
+            NOTES="RELEASE_NOTES.md"
+          fi
+          if [ -f "$NOTES" ]; then
+            cat "$NOTES" > release_body.md
+          else
+            echo "# KurdTube ${VERSION}" > release_body.md
+          fi
           printf '\n## SHA-256\n\n```\n%s\n```\n' "$HASH" >> release_body.md
 
       - name: Upload APK artifact
@@ -153,6 +174,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
+          name: KurdTube ${{ steps.version.outputs.name }}
           body_path: release_body.md
           files: |
             KurdTube-*.apk
