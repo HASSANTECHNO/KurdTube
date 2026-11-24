@@ -46,6 +46,15 @@ class LibraryManager(context: Context) {
         songsStateList.addAll(songs.distinctBy { it.contentUri })
     }
 
+    /** Finds a still-existing library file that was downloaded from [videoId]. */
+    fun findDownloadedSong(videoId: String): Song? {
+        val uri = runCatching { databaseManager.findSongUri(videoId) }
+            .getOrNull() ?: return null
+        if (!songManager.exists(uri)) return null
+
+        return runCatching { songManager.getSingleSong(uri) }.getOrNull()
+    }
+
     //edit state
 
     private var editSongState by mutableStateOf(null as Song?)

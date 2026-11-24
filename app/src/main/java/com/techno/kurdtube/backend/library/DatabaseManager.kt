@@ -57,7 +57,9 @@ class DatabaseManager(context: Context, private val mediaStoreManager: MediaStor
             mediaStoreManager.createFile(databaseFileName, filesCollection, databaseDirectory)
                 ?: return null
         val outputStream = mediaStoreManager.openFileOutputStream(uri, "wa") ?: return null
-        outputStream.write("#${System.currentTimeMillis()}\n".toByteArray())
+        outputStream.use { out ->
+            out.write("#${System.currentTimeMillis()}\n".toByteArray())
+        }
         return uri
     }
 
@@ -78,6 +80,21 @@ class DatabaseManager(context: Context, private val mediaStoreManager: MediaStor
         inputStream.bufferedReader().use { reader ->
             return reader.readLines().filter { !it.startsWith('#') }
         }
+    }
+
+    /** Returns the newest downloaded file for [videoId], if the database has one. */
+    fun findSongUri(videoId: String): Uri? {
+        return readLines()
+            ?.asReversed()
+            ?.firstNotNullOfOrNull { line ->
+                val separator = line.lastIndexOf(' ')
+                if (separator <= 0) return@firstNotNullOfOrNull null
+
+                val id = line.substring(separator + 1)
+                if (id != videoId) return@firstNotNullOfOrNull null
+
+                Uri.parse(line.substring(0, separator))
+            }
     }
 
 }

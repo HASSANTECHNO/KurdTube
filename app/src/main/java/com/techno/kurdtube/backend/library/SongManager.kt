@@ -43,6 +43,11 @@ class SongManager(context: Context, private val mediaStoreManager: MediaStoreMan
         return getSongFromFile(file)
     }
 
+    /** True when the MediaStore still owns the file behind [uri]. */
+    fun exists(uri: Uri): Boolean {
+        return runCatching { mediaStoreManager.getFileByUri(uri) }.isSuccess
+    }
+
     fun getAllSongs(): List<Song> {
         val files = mediaStoreManager.getFilesFromDirectory(
             audioCollection,

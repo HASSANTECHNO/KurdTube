@@ -168,6 +168,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         if (downloadManager.isBusy()) return
 
+        val videoId = YoutubeApi.extractVideoId(downloadInfo.videoUrl.toString())
+        if (videoId != null && libraryManager.findDownloadedSong(videoId) != null) {
+            showToast(R.string.toast_already_downloaded)
+            return
+        }
+
         if (permissionManager.getMissingPermission() != null) {
             pendingDownload = true
             pendingDownloadInfo = downloadInfo
@@ -196,7 +202,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             //insert uri & videoId into database for later usage (e.g. loading thumbnails from yt)
-            val videoId = YoutubeApi.extractVideoId(downloadInfo.videoUrl.toString())
             if (videoId != null) {
                 libraryManager.databaseManager.writeLine("${song.contentUri} $videoId")
             }

@@ -51,6 +51,7 @@
     <string name="toast_download_preparing">Download finished. Preparing the song…</string>
     <string name="toast_download_completed">Song added to Downloads.</string>
     <string name="toast_download_unavailable">Could not prepare this video for download. Change your VPN/network or try another video.</string>
+    <string name="toast_already_downloaded">This song is already in Downloads.</string>
 
     <string name="dialog_share_download_title">Download video?</string>
     <string name="dialog_button_cancel">Cancel</string>
