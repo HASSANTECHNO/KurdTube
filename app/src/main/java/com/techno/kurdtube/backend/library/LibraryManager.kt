@@ -1,6 +1,7 @@
 package com.techno.kurdtube.backend.library
 
 import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +10,7 @@ import com.techno.kurdtube.backend.mediastore.MediaStoreManager
 import com.techno.kurdtube.backend.permission.FilePermissionManager
 import com.techno.kurdtube.backend.permission.FilePermissionRequest
 import com.techno.kurdtube.backend.utils.async
+import com.techno.kurdtube.backend.utils.sync
 
 class LibraryManager(context: Context) {
 
@@ -26,8 +28,22 @@ class LibraryManager(context: Context) {
         return songsStateList
     }
 
-    fun addToSongs(song: Song) {
-        songsStateList.add(song)
+    fun addToSongs(song: Song, removedUris: Set<Uri> = emptySet()) {
+        if (removedUris.isNotEmpty()) {
+            songsStateList.removeAll { it.contentUri in removedUris }
+        }
+
+        val existingIndex = songsStateList.indexOfFirst { it.contentUri == song.contentUri }
+        if (existingIndex >= 0) {
+            songsStateList[existingIndex] = song
+        } else {
+            songsStateList.add(song)
+        }
+    }
+
+    fun replaceSongs(songs: List<Song>) {
+        songsStateList.clear()
+        songsStateList.addAll(songs.distinctBy { it.contentUri })
     }
 
     //edit state
@@ -51,8 +67,7 @@ class LibraryManager(context: Context) {
     fun loadLibrary() {
         async {
             val songs = songManager.getAllSongs()
-            songsStateList.clear()
-            songsStateList.addAll(songs)
+            sync { replaceSongs(songs) }
         }
     }
 

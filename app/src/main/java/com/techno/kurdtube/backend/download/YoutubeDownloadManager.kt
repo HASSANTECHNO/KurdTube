@@ -37,7 +37,7 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
     fun start(
         downloadInfo: YoutubeDownloadInfo,
         bufferBytes: Long,
-        onSuccess: (song: Song) -> Unit
+        onSuccess: (song: Song, removedUris: Set<Uri>) -> Unit
     ) {
         //only one download at a time
         if (downloadState.active || processing) return
@@ -54,6 +54,9 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
         downloadThread = async {
             var uri: Uri? = null
             var current = download
+            // Intermediate files that were deleted and must disappear from the
+            // library if a concurrent refresh had already listed them.
+            val removedUris = mutableSetOf<Uri>()
 
             try {
                 var currentUri = createSongFile(current)
@@ -64,7 +67,7 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
 
                 while (true) {
                     try {
-                        written = downloadFile(current, currentUri, bufferBytes)
+                        written = downloadFile(current, currentUri, bufferBytes, removedUris)
                         break
                     } catch (error: ExpiredLinkException) {
                         //googlevideo signs the link for the requesting IP, so a new network
@@ -87,7 +90,7 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
                             stream.contentLength
                         )
 
-                        songManager.deleteSong(currentUri)
+                        deleteIntermediate(currentUri, removedUris)
                         lastReportedBytes = 0L
                         currentUri = createSongFile(current)
                         uri = currentUri
@@ -110,13 +113,13 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
                     ?: downloadedUri
 
                 if (finishedUri != downloadedUri) {
-                    songManager.deleteSong(downloadedUri)
+                    deleteIntermediate(downloadedUri, removedUris)
                 }
 
                 lastFileUri = finishedUri
 
                 val song = songManager.getSingleSong(finishedUri)
-                sync { onSuccess(song) }
+                sync { onSuccess(song, removedUris.toSet()) }
             } catch (error: Throwable) {
                 LOG("DOWNLOAD FAILED ${error.message}")
 
@@ -126,7 +129,7 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
 
                 (lastFileUri ?: uri)?.let { failedUri ->
                     async {
-                        songManager.deleteSong(failedUri)
+                        runCatching { songManager.deleteSong(failedUri) }
                     }
                 }
             } finally {
@@ -138,13 +141,31 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
     }
 
     /**
+     * Deletes an intermediate file and remembers its URI. MediaStore deletions are
+     * best effort: on Android 10+ the file was pending and was never visible in the
+     * library, so a failure must not break a finished download.
+     */
+    private fun deleteIntermediate(uri: Uri, removedUris: MutableSet<Uri>) {
+        val deleted = runCatching { songManager.deleteSong(uri) }
+            .onFailure { error ->
+                LOG("could not delete the intermediate file: ${error.message}")
+            }
+            .getOrNull()
+
+        if (deleted != null) {
+            removedUris.add(uri)
+        }
+    }
+
+    /**
      * Downloads into the file behind [uri]. When the host ignores the resume request the
      * file is thrown away and downloaded from the beginning once.
      */
     private fun downloadFile(
         download: YoutubeDownload,
         uri: Uri,
-        bufferBytes: Long
+        bufferBytes: Long,
+        removedUris: MutableSet<Uri>
     ): Long {
 
         val onProgress: (Long) -> Unit = { downloadedBytes ->
@@ -159,7 +180,7 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
         } catch (error: RangeNotSupportedException) {
             LOG("host does not support resuming, downloading from the beginning again")
 
-            songManager.deleteSong(uri)
+            deleteIntermediate(uri, removedUris)
 
             val newUri = createSongFile(download)
             lastFileUri = newUri
@@ -182,12 +203,13 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
             songManager.createSong(
                 fileName = sanitizeFileName(fileName),
                 extension = MP3_EXTENSION,
-                mimeType = MP3_MIME_TYPE
+                mimeType = MP3_MIME_TYPE,
+                isPending = true
             )
         } catch (error: Throwable) {
             LOG("could not create the mp3 file: ${error.message}")
             null
-        } ?: return null
+        } ?: return publishSourceOrThrow(sourceUri)
 
         lastFileUri = mp3Uri
 
@@ -198,9 +220,8 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
             LOG("could not open the files for the mp3 conversion")
             runCatching { outputStream?.close() }
             runCatching { inputFile?.close() }
-            songManager.deleteSong(mp3Uri)
-            lastFileUri = sourceUri
-            return null
+            runCatching { songManager.deleteSong(mp3Uri) }
+            return publishSourceOrThrow(sourceUri)
         }
 
         val converted = try {
@@ -218,19 +239,38 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
         }
 
         if (!converted) {
-            songManager.deleteSong(mp3Uri)
+            runCatching { songManager.deleteSong(mp3Uri) }
+            return publishSourceOrThrow(sourceUri)
+        }
+
+        if (!songManager.publishSong(mp3Uri)) {
+            LOG("could not make the mp3 file visible")
+            runCatching { songManager.deleteSong(mp3Uri) }
+            return publishSourceOrThrow(sourceUri)
+        }
+
+        return mp3Uri
+    }
+
+    /**
+     * Publishes the downloaded container when the MP3 conversion was not possible.
+     * Returns `null` because the caller keeps using [sourceUri].
+     */
+    private fun publishSourceOrThrow(sourceUri: Uri): Uri? {
+        if (songManager.publishSong(sourceUri)) {
             lastFileUri = sourceUri
             return null
         }
 
-        return mp3Uri
+        throw IllegalStateException("could not publish the downloaded file")
     }
 
     private fun createSongFile(download: YoutubeDownload): Uri {
         val uri = songManager.createSong(
             fileName = sanitizeFileName(download.fileName),
             extension = download.fileExtension,
-            mimeType = download.mimeType
+            mimeType = download.mimeType,
+            isPending = true
         ) ?: throw IllegalStateException("createFile error")
 
         lastFileUri = uri
