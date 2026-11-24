@@ -19,7 +19,8 @@ class MediaStoreManager(context: Context) {
         fileName: String,
         collection: Uri,
         directory: MediaStoreDirectory,
-        columnValues: Map<String, String> = emptyMap()
+        columnValues: Map<String, String> = emptyMap(),
+        isPending: Boolean = false
     ): Uri? {
 
         val contentValues = ContentValues().apply {
@@ -29,6 +30,9 @@ class MediaStoreManager(context: Context) {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 put(MediaStore.MediaColumns.RELATIVE_PATH, directory.relativeDirectoryString)
+                // Intermediate files (the downloaded container and the MP3 that is
+                // still being written) stay invisible until they are complete.
+                put(MediaStore.MediaColumns.IS_PENDING, if (isPending) 1 else 0)
             } else {
                 val directoryFile = directory.fullDirectoryFile
                 if (!directoryFile.exists()) {
@@ -46,6 +50,16 @@ class MediaStoreManager(context: Context) {
     fun updateFile(uri: Uri, columnValues: Map<String, String>): Int {
         val contentValues = ContentValues().apply {
             columnValues.entries.forEach { put(it.key, it.value) }
+        }
+        return contentResolver.update(uri, contentValues, null, null)
+    }
+
+    /** Makes a pending media item visible to the library again. */
+    fun setFilePending(uri: Uri, pending: Boolean): Int {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return 1
+
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.IS_PENDING, if (pending) 1 else 0)
         }
         return contentResolver.update(uri, contentValues, null, null)
     }
@@ -132,11 +146,25 @@ class MediaStoreManager(context: Context) {
         collection: Uri,
         directory: MediaStoreDirectory,
         fileExtensions: List<String> = emptyList(),
-        columns: Array<String> = emptyArray()
+        columns: Array<String> = emptyArray(),
+        excludePending: Boolean = false
     ): List<MediaStoreFile> {
 
-        val selection = fileExtensions
+        val extensionSelection = fileExtensions
             .joinToString(separator = " OR ") { "${MediaStore.MediaColumns.DATA} LIKE ?" }
+            .ifEmpty { null }
+
+        // Pending items are only visible to the app that owns them. They are
+        // intermediate download/conversion files, not songs in the library yet.
+        // Rows created before Android 10 can have a NULL value, so they stay visible.
+        val pendingSelection = if (excludePending && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            "(${MediaStore.MediaColumns.IS_PENDING} = 0 OR ${MediaStore.MediaColumns.IS_PENDING} IS NULL)"
+        } else {
+            null
+        }
+
+        val selection = listOfNotNull(extensionSelection, pendingSelection)
+            .joinToString(separator = " AND ")
             .ifEmpty { null }
 
         val selectionArgs = fileExtensions

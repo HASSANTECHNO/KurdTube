@@ -47,9 +47,28 @@ class SongManager(context: Context, private val mediaStoreManager: MediaStoreMan
         val files = mediaStoreManager.getFilesFromDirectory(
             audioCollection,
             songDirectory,
-            songFileExtensions
+            songFileExtensions,
+            columns = arrayOf(MediaStore.MediaColumns.SIZE),
+            excludePending = true
         )
-        return files.map { file -> getSongFromFile(file) }
+
+        // Older versions could leave the downloaded m4a/webm container next to
+        // the converted MP3 when deleting it failed. Hide the container when a
+        // valid MP3 with the same base name exists, so the library shows one song.
+        val mp3BaseNames = files.asSequence()
+            .filter { it.name.endsWith(MP3_EXTENSION, ignoreCase = true) }
+            .filter { file ->
+                (file.columnValues[MediaStore.MediaColumns.SIZE]?.toLongOrNull() ?: 0L) > 0L
+            }
+            .map { removeExtension(it.name).lowercase() }
+            .toSet()
+
+        return files
+            .filter { file ->
+                file.name.endsWith(MP3_EXTENSION, ignoreCase = true) ||
+                    removeExtension(file.name).lowercase() !in mp3BaseNames
+            }
+            .map { file -> getSongFromFile(file) }
     }
 
     private fun getSongFromFile(file: MediaStoreFile): Song {
@@ -65,8 +84,9 @@ class SongManager(context: Context, private val mediaStoreManager: MediaStoreMan
 
     fun createSong(
         fileName: String,
-        extension: String = DEFAULT_EXTENSION,
-        mimeType: String? = null
+        extension: String = MP3_EXTENSION,
+        mimeType: String? = null,
+        isPending: Boolean = false
     ): Uri? {
         val columnValues =
             if (mimeType != null) mapOf(MediaStore.MediaColumns.MIME_TYPE to mimeType)
@@ -76,8 +96,14 @@ class SongManager(context: Context, private val mediaStoreManager: MediaStoreMan
             fileName.plus(extension),
             audioCollection,
             songDirectory,
-            columnValues
+            columnValues,
+            isPending
         )
+    }
+
+    /** Makes a pending download visible in the library. */
+    fun publishSong(uri: Uri): Boolean {
+        return mediaStoreManager.setFilePending(uri, false) > 0
     }
 
     fun openSongForWriting(uri: Uri): OutputStream? {
@@ -94,7 +120,7 @@ class SongManager(context: Context, private val mediaStoreManager: MediaStoreMan
         val currentFileName = mediaStoreManager.getFileByUri(uri).name
         val extension = songFileExtensions.firstOrNull {
             currentFileName.endsWith(it, ignoreCase = true)
-        } ?: DEFAULT_EXTENSION
+        } ?: MP3_EXTENSION
 
         val columnValues =
             mapOf(MediaStore.MediaColumns.DISPLAY_NAME to newFileName.plus(extension))
@@ -107,7 +133,7 @@ class SongManager(context: Context, private val mediaStoreManager: MediaStoreMan
     }
 
     companion object {
-        private const val DEFAULT_EXTENSION = ".mp3"
+        private const val MP3_EXTENSION = ".mp3"
     }
 
 }

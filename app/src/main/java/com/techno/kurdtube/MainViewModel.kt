@@ -181,9 +181,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         val bufferBytes = settingManager.getSetting(Setting.DOWNLOAD_BUFFER).toInt() * 1000L
         analyticsManager.logDownloadStarted()
-        downloadManager.start(downloadInfo, bufferBytes) { song ->
+        downloadManager.start(downloadInfo, bufferBytes) { song, removedUris ->
 
-            libraryManager.addToSongs(song)
+            libraryManager.addToSongs(song, removedUris)
 
             analyticsManager.logDownloadCompleted()
             showToast(R.string.toast_download_completed)
