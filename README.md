@@ -11,7 +11,7 @@
   <img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-توسعه-7F52FF?logo=kotlin&logoColor=white" />
   <img alt="Jetpack Compose" src="https://img.shields.io/badge/Jetpack%20Compose-رابط%20کاربری-4285F4?logo=jetpackcompose&logoColor=white" />
   <a href="https://github.com/HASSANTECHNO/KurdTube/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/HASSANTECHNO/KurdTube?label=release&color=black" /></a>
-  <a href="https://github.com/HASSANTECHNO/KurdTube/actions/workflows/ci.yml"><img alt="Build and test" src="https://github.com/HASSANTECHNO/KurdTube/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://github.com/HASSANTECHNO/KurdTube/actions/workflows/ci.yml"><img alt="Build and test" src="https://img.shields.io/github/actions/workflow/status/HASSANTECHNO/KurdTube/ci.yml?label=build" /></a>
 </p>
 
 ---
@@ -24,11 +24,14 @@ KurdTube یک اپلیکیشن اندرویدی با رابط کاربری Jetpa
 
 | مورد | مقدار |
 |---|---|
-| آخرین نسخه | `1.2` |
+| نسخه‌ی سورس | `1.2` (versionCode `120`) |
+| آخرین APK منتشرشده | `1.1.8` |
 | حداقل اندروید | 7.0 (API 25) |
 | targetSdk | 35 |
 | زبان‌ها | English، کوردی سورانی، فارسی |
-| تغییرات این نسخه | [`RELEASE_NOTES_1.2.md`](RELEASE_NOTES_1.2.md) |
+| بیلد CI | تست واحد + APK دیباگ + APK ریلیز بدون امضا |
+
+> نسخه‌ی `1.2` در سورس آماده است. برای انتشار رسمی، APK امضاشده را با Android Studio بساز و در بخش Releases قرار بده.
 
 ## 🧭 مسیر استفاده
 
@@ -50,9 +53,10 @@ flowchart TD
 - **فهرست‌های پخش:** بارگذاری و مدیریت پلی‌لیست‌ها.
 - **تنظیمات نمایشی:** پشتیبانی از تم روشن، تاریک و حالت هماهنگ با سیستم.
 - **فونت کوردی سورانی:** فونت اختصاصی `RudawRegular` برای رابط کاربری کوردی سورانی.
-- **به‌روزرسانی خودکار:** دانلود نسخه‌ی جدید و باز شدن نصب‌کننده پس از پایان دانلود.
-- **اشتراک‌گذاری لینک:** دریافت لینک YouTube از طریق قابلیت اشتراک‌گذاری اندروید و بازکردن آن در برنامه.
-- **آمار ناشناس استفاده:** شمارش کاربران فعال و رویدادهای صفحه/دانلود با Firebase Analytics (بدون Advertising ID).
+- **به‌روزرسانی امن:** دانلود نسخه‌ی جدید، بررسی SHA-256 و سپس باز شدن نصب‌کننده.
+- **اشتراک‌گذاری لینک:** دریافت لینک YouTube از طریق قابلیت اشتراک‌گذاری اندروید.
+- **آمار ناشناس:** شمارش کاربران فعال و رویدادهای صفحه/دانلود با Firebase Analytics (بدون Advertising ID).
+- **پروکسی عمومی اختیاری:** پیش‌فرض خاموش؛ فقط در صورت نیاز و با آگاهی از ریسک حریم خصوصی.
 
 ## 🧩 فناوری‌ها
 
@@ -60,56 +64,69 @@ flowchart TD
 |---|---|
 | Kotlin | منطق برنامه |
 | Jetpack Compose | رابط کاربری |
-| Android Lifecycle | مدیریت وضعیت و چرخه‌ی حیات |
-| Media Player | پخش رسانه |
-| YouTube URLs | بازکردن و پردازش لینک‌های محتوا |
+| Android Lifecycle / ViewModel | مدیریت وضعیت و چرخه‌ی حیات |
+| Media3 ExoPlayer | پخش رسانه |
+| YouTube InnerTube | دریافت اطلاعات و لینک رسانه |
 | Firebase Analytics | آمار ناشناس استفاده |
+| GitHub Actions | تست، بیلد و انتشار |
 
-## 🔥 راه‌اندازی Firebase Analytics
+## 📂 ساختار پروژه
 
-برای فعال کردن آمار ناشناس استفاده، فایل `app/google-services.json` را از Firebase Console بگیر و کنار `app/build.gradle` بگذار. راهنمای کامل: [`FIREBASE_SETUP.md`](FIREBASE_SETUP.md)
-
-## 📦 دانلود و نصب
-
-نسخه‌های رسمی از بخش [Releases](https://github.com/HASSANTECHNO/KurdTube/releases) قابل دانلود هستند.
-
-1. فایل `KurdTube-1.2.apk` را از آخرین Release دانلود کن.
-2. آن را نصب کن. اگر Play Protect پیام **«App scan recommended»** نشان داد، روی **«Install without scanning»** بزن. این پیام برای برنامه‌های خارج از Google Play عادی است و به معنی ویروس نیست.
-3. برای اطمینان از سالم بودن فایل، مقدار SHA-256 داخل صفحه‌ی Release یا فایل `.sha256` پیوست‌شده را با مقدار فایل دانلودشده مقایسه کن.
-
-> اگر قبلاً نسخه‌ی آزمایشی (debug) را نصب کرده‌ای، چون امضای نسخه‌ی رسمی متفاوت است، باید نسخه‌ی قبلی را حذف کنی و بعد APK جدید را نصب کنی.
-
-## 🚀 انتشار نسخه‌ی جدید (GitHub Actions)
-
-مخزن برای ساخت و انتشار خودکار APK امضاشده آماده است. فایل ورک‌فلو: [`.github/workflows/release.yml`](.github/workflows/release.yml)
-
-### Secretهای لازم در GitHub
-
-در `Settings → Secrets and variables → Actions` این مقادیر را اضافه کن:
-
-| Secret | مقدار |
-|---|---|
-| `KEYSTORE_BASE64` | خروجی Base64 فایل keystore |
-| `KEYSTORE_PASSWORD` | رمز keystore |
-| `KEY_ALIAS` | `kurdtube` |
-| `KEY_PASSWORD` | رمز کلید (در این پروژه همان رمز keystore است) |
-
-ساخت مقدار Base64 در Termux:
-
-```bash
-base64 -w0 keystore/kurdtube-release.jks
+```text
+app/src/main/java/com/techno/kurdtube/
+├── backend/        # دانلود، کتابخانه، پخش، آپدیت، تنظیمات، مجوزها
+├── frontend/       # کامپوننت‌های Jetpack Compose
+├── MainActivity.kt
+└── MainViewModel.kt
+app/src/test/       # تست‌های واحد (نسخه، YouTube API، checksum)
+.github/workflows/  # CI و انتشار ریلیز
 ```
 
-### ساخت Release
+## 🚀 شروع سریع
 
-```bash
-git tag v1.2
-git push origin v1.2
-```
+### پیش‌نیازها
 
-با push شدن تگ، GitHub Actions فایل APK را می‌سازد و به Release همان تگ پیوست می‌کند.
+- Android Studio با پشتیبانی از AGP `8.6.1`
+- JDK `17`
+- Android SDK Platform `35` و Build-Tools `35.0.0`
+- Gradle `8.7` (wrapper در پروژه موجود است)
 
-### ساخت دستی روی کامپیوتر
+### اجرا
+
+1. پروژه را کلون کن:
+   ```bash
+   git clone https://github.com/HASSANTECHNO/KurdTube.git
+   ```
+2. در Android Studio: **File → Open** و پوشه‌ی پروژه را انتخاب کن.
+3. اجازه بده Gradle Sync کامل شود.
+4. روی دستگاه یا امولاتور اجرا کن.
+
+### Firebase Analytics (اختیاری)
+
+فایل `app/google-services.json` را از Firebase Console بگیر و در پوشه‌ی `app/` بگذار. این فایل در git نگه‌داری نمی‌شود. بدون آن هم برنامه build و اجرا می‌شود؛ فقط آمار غیرفعال می‌ماند. راهنمای کامل: [`FIREBASE_SETUP.md`](FIREBASE_SETUP.md)
+
+## 🔐 ساخت نسخه‌ی Release (1.2)
+
+### روش ۱ — Android Studio (پیشنهادی)
+
+1. فایل `keystore.properties.example` را به `keystore.properties` کپی کن.
+2. مقادیر keystore خودت را داخل آن بگذار:
+   ```properties
+   storeFile=keystore/kurdtube-release.jks
+   storePassword=...
+   keyAlias=kurdtube
+   keyPassword=...
+   ```
+3. در Android Studio: **Build → Generate Signed Bundle / APK**.
+4. گزینه‌ی **APK** و سپس **release** را انتخاب کن.
+5. خروجی در این مسیر ساخته می‌شود:
+   ```text
+   app/build/outputs/apk/release/app-release.apk
+   ```
+
+> اگر `keystore.properties` وجود نداشته باشد، `assembleRelease` یک APK بدون امضا می‌سازد؛ برای انتشار عمومی باید آن را امضا کنی.
+
+### روش ۲ — خط فرمان
 
 ```bash
 cp keystore.properties.example keystore.properties
@@ -117,7 +134,55 @@ cp keystore.properties.example keystore.properties
 ./gradlew assembleRelease
 ```
 
-فایل خروجی: `app/build/outputs/apk/release/app-release.apk`
+### روش ۳ — GitHub Actions (انتشار خودکار)
+
+Secretهای لازم در **Settings → Secrets and variables → Actions**:
+
+| Secret | مقدار |
+|---|---|
+| `KEYSTORE_BASE64` | خروجی Base64 فایل keystore |
+| `KEYSTORE_PASSWORD` | رمز keystore |
+| `KEY_ALIAS` | `kurdtube` |
+| `KEY_PASSWORD` | رمز کلید |
+| `GOOGLE_SERVICES_JSON` (اختیاری) | محتوای کامل `google-services.json` برای فعال ماندن Firebase Analytics در CI |
+
+ساخت مقدار Base64 در Termux/Linux:
+
+```bash
+base64 -w0 keystore/kurdtube-release.jks
+```
+
+برای انتشار، تگ نسخه را push کن:
+
+```bash
+git tag v1.2
+git push origin v1.2
+```
+
+Workflow `Build signed release APK` فایل APK و checksum را می‌سازد و به Release همان تگ پیوست می‌کند.
+
+> Workflow امضای APK را با fingerprint فعلی keystore بررسی می‌کند. اگر keystore را عوض کردی، خط مربوط به fingerprint در `.github/workflows/release.yml` را به‌روز کن.
+
+### بیلد بدون امضا در CI
+
+هر push به `master` یا هر Pull Request، workflow `Build and test` را اجرا می‌کند و این فایل‌ها را به‌عنوان artifact آپلود می‌کند:
+
+- `app-debug.apk`
+- `app-release-unsigned.apk`
+
+## 🔒 امنیت و حریم خصوصی
+
+- پروکسی عمومی مرورگر به‌صورت پیش‌فرض **خاموش** است.
+- آپدیت‌ها فقط وقتی نصب می‌شوند که SHA-256 آن‌ها با فایل منتشرشده مطابقت داشته باشد.
+- Firebase Analytics بدون Advertising ID و بدون ارسال محتوای کاربر.
+- `keystore`، `keystore.properties` و `google-services.json` در git نگه‌داری نمی‌شوند.
+- APKهای ساخته‌شده و فایل‌های IDE هم در مخزن نگه‌داری نمی‌شوند.
+
+## 📦 دانلود
+
+- نسخه‌های پایدار: [Releases](https://github.com/HASSANTECHNO/KurdTube/releases)
+- آخرین نسخه‌ی منتشرشده: `v1.1.8`
+- نسخه‌ی `1.2`: از سورس یا Android Studio ساخته می‌شود.
 
 ---
 

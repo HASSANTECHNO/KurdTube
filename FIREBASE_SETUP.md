@@ -30,12 +30,16 @@
 
 > این فایل در `.gitignore` است و کامیت نمی‌شود. برای هر کسی که پروژه را build می‌کند باید جداگانه اضافه شود.
 
+### استفاده در GitHub Actions (اختیاری)
+
+اگر می‌خواهی APKهایی که در CI ساخته می‌شوند هم آمار Firebase داشته باشند، محتوای کامل `google-services.json` را در یک Secret به نام `GOOGLE_SERVICES_JSON` ذخیره کن. Workflowها در صورت وجود این Secret فایل را قبل از build می‌سازند؛ در غیر این صورت بدون Firebase build می‌شوند.
+
 ## ۴) Sync و Build
 
 1. فایل `google-services.json` را در `app/` بگذار (مرحله‌ی قبل).
 2. در Android Studio: **File → Sync Project with Gradle Files** تا پلاگین Google Services فعال شود.
 3. **Build → Clean Project** و بعد **Build → Build Bundle(s)/APK(s) → Build APK(s)**
-4. نسخه باید `1.1.8` (versionCode `118`) باشد.
+4. نسخه باید `1.2` (versionCode `120`) باشد.
 
 ## ۵) دیدن آمار
 

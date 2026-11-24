@@ -1,18 +1,19 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# Gradle and Android Studio
+.gradle/
+build/
+app/build/
 local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+.idea/
+*.iml
+
+# Build outputs and local release artifacts
+/dist/
+*.apk
+*.aab
+*.log
 
 # Firebase project config: download it from the Firebase console (see FIREBASE_SETUP.md).
 /app/google-services.json
@@ -23,5 +24,6 @@ keystore.properties
 *.jks
 *.keystore
 
-# Local JDK package used on Termux.
+# Local tooling
 /openjdk-17-termux.deb
+.DS_Store

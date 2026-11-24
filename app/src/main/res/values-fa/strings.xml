@@ -65,6 +65,8 @@
     <string name="dialog_update_button_open">نمایش در مرورگر</string>
     <string name="toast_update_start_download">در حال دانلود به‌روزرسانی… پس از پایان دانلود، نصب‌کننده باز می‌شود.</string>
     <string name="toast_update_allow_install">اجازه‌ی نصب به‌روزرسانی را برای KurdTube فعال کنید تا به‌روزرسانی خودکار نصب شود.</string>
+    <string name="toast_update_integrity_failed">بررسی به‌روزرسانی ناموفق بود. فایل دانلودشده خراب یا دست‌کاری شده بود و حذف شد. دوباره تلاش کنید.</string>
+    <string name="toast_update_verify_unavailable">بررسی فایل به‌روزرسانی ممکن نشد. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.</string>
 
     <string name="dialog_create_playlist_title">ساخت پلی‌لیست</string>
     <string name="dialog_create_playlist_button_create">ساخت</string>
@@ -119,7 +121,7 @@
     <string name="settings_button_reset">بازنشانی تنظیمات</string>
 
     <string name="setting_title_publicproxy">استفاده از پروکسی‌های عمومی مرورگر</string>
-    <string name="setting_description_publicproxy">لیستی از پروکسی‌های عمومی را از گیت‌هاب بارگیری می‌کند و ترافیک مرورگر را از طریق آن‌ها مسیریابی می‌کند. در دسترس بودن و حریم خصوصی به گردانندگان این پروکسی‌ها بستگی دارد.</string>
+    <string name="setting_description_publicproxy">به‌صورت پیش‌فرض خاموش است. با فعال‌سازی، فهرستی از پروکسی‌های عمومی از گیت‌هاب بارگیری می‌شود و ترافیک مرورگر از آن‌ها عبور می‌کند. گردانندگان این پروکسی‌ها می‌توانند ترافیک شما را ببینند یا تغییر دهند. فقط در صورت اعتماد فعال کنید.</string>
 
     <string name="proxy_loading">در حال آماده‌سازی پروکسی‌های عمومی…</string>
     <string name="proxy_unavailable">بارگیری لیست پروکسی‌های سالم ممکن نشد.</string>
