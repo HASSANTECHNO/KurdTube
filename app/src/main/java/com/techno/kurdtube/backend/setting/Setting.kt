@@ -57,7 +57,9 @@ enum class Setting(
         R.string.setting_title_publicproxy,
         R.string.setting_description_publicproxy,
         R.string.setting_category_browser,
-        SettingType.Switch(true)
+        // Public proxies are operated by unknown third parties and can observe
+        // or modify the browser traffic. Keep this opt-in.
+        SettingType.Switch(false)
     ),
 
     KURDISH_ONLY_SEARCH(

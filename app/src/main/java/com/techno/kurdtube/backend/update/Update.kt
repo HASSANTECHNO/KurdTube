@@ -5,5 +5,6 @@ class Update(
     val version: String,
     val description: String,
     val downloadUrl: String,
+    val checksumUrl: String,
     val githubUrl: String
 )

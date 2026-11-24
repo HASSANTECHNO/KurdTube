@@ -65,6 +65,8 @@
     <string name="dialog_update_button_open">پیشاندان لە وێبگەڕ</string>
     <string name="toast_update_start_download">نوێکردنەوە دادەگیرێت… کاتێک داگرتن تەواو بوو، دامەزرێنەر دەکرێتەوە.</string>
     <string name="toast_update_allow_install">ڕێگە بدە بە دامەزراندنی نوێکردنەوە بۆ KurdTube، ئەوسا نوێکردنەوە خۆکارانە دادەمەزرێت.</string>
+    <string name="toast_update_integrity_failed">پشکنینی نوێکردنەوە سەرکەوتوو نەبوو. فایلی داگیراو تێکچووە یان دەستکاری کراوە و سڕایەوە. تکایە دووبارە هەوڵ بدە.</string>
+    <string name="toast_update_verify_unavailable">نەتوانرا داگرتنی نوێکردنەوە پشکنین بکات. پەیوەندی ئینتەرنێت بپشکنە و دووبارە هەوڵ بدە.</string>
 
     <string name="dialog_create_playlist_title">دروستکردنی لیستی لێدان</string>
     <string name="dialog_create_playlist_button_create">دروستکردن</string>
@@ -119,7 +121,7 @@
     <string name="settings_button_reset">سفرکردنەوەی ڕێکخستنەکان</string>
 
     <string name="setting_title_publicproxy">بەکارهێنانی پرۆکسی گشتی بۆ وێبگەڕ</string>
-    <string name="setting_description_publicproxy">لیستی پرۆکسی گشتی لە گیت‌هاب دادەبەزێنێت و هاتوچۆی وێبگەڕ بەناو ئەواندا دەگوازێتەوە. بەردەستبوون و پاراستنی تایبەتمەندی پەیوەندی بە بەڕێوەبەرانی ئەو پرۆکسیانەوە هەیە.</string>
+    <string name="setting_description_publicproxy">بە شێوەی بنەڕەتی داخراوە. کاتێک چالاک دەکرێت، لیستێکی پرۆکسی گشتی لە گیت‌هاب دادەبەزێت و هاتوچۆی وێبگەڕ بەناویاندا تێدەپەڕێت. بەڕێوەبەرانی ئەو پرۆکسیانە دەتوانن هاتوچۆت ببینن یان بیگۆڕن. تەنها ئەگەر متمانەت پێیان هەیە چالاکی بکە.</string>
 
     <string name="proxy_loading">ئامادەکردنی پرۆکسی گشتی…</string>
     <string name="proxy_unavailable">نەتوانرا لیستی پرۆکسی کارا باربکرێت.</string>

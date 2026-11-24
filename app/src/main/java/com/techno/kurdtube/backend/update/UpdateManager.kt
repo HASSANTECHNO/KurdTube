@@ -22,6 +22,7 @@ import com.techno.kurdtube.R
 import com.techno.kurdtube.backend.locale.LocaleManager
 import com.techno.kurdtube.backend.utils.LOG
 import com.techno.kurdtube.backend.utils.async
+import com.techno.kurdtube.backend.utils.sync
 import org.json.JSONArray
 import java.io.File
 import java.net.URL
@@ -86,16 +87,35 @@ class UpdateManager(private val context: Context) {
             val githubUrl = releaseJson.optString("html_url")
 
             val assetsJson = releaseJson.getJSONArray("assets")
-            for (j in 0 until assetsJson.length()) {
-                val assetJson = assetsJson.getJSONObject(j)
-                val downloadUrl = assetJson.getString("browser_download_url")
-                if (downloadUrl.endsWith(".apk", ignoreCase = true)) {
-                    return Update(title, version, description, downloadUrl, githubUrl)
-                }
+            val assets = (0 until assetsJson.length()).mapNotNull { j ->
+                val assetJson = assetsJson.optJSONObject(j) ?: return@mapNotNull null
+                ReleaseAsset(
+                    name = assetJson.optString("name"),
+                    url = assetJson.optString("browser_download_url")
+                )
             }
+
+            // Auto-update is only allowed when the release also publishes the
+            // matching `*.apk.sha256` file, so the APK can be verified before install.
+            val apk = assets.firstOrNull { asset ->
+                asset.name.endsWith(".apk", ignoreCase = true) &&
+                    assets.any { it.name == "${asset.name}.sha256" }
+            } ?: continue
+            val checksumUrl = assets.first { it.name == "${apk.name}.sha256" }.url
+
+            return Update(
+                title = title,
+                version = version,
+                description = description,
+                downloadUrl = apk.url,
+                checksumUrl = checksumUrl,
+                githubUrl = githubUrl
+            )
         }
         return null
     }
+
+    private data class ReleaseAsset(val name: String, val url: String)
 
     // download & install ==========================================
 
@@ -116,6 +136,7 @@ class UpdateManager(private val context: Context) {
         preferences().edit()
             .remove(KEY_DOWNLOAD_ID)
             .remove(KEY_APK_PATH)
+            .remove(KEY_CHECKSUM_URL)
             .putBoolean(KEY_PENDING_INSTALL, false)
             .apply()
     }
@@ -170,7 +191,7 @@ class UpdateManager(private val context: Context) {
             //the download can finish while the app is in the background; the
             //installer is then opened when the app comes back to the foreground
             setPendingInstall(true)
-            installDownloadedUpdate()
+            verifyAndInstall()
         }
 
     }
@@ -207,12 +228,13 @@ class UpdateManager(private val context: Context) {
         preferences().edit()
             .putLong(KEY_DOWNLOAD_ID, downloadId)
             .putString(KEY_APK_PATH, apkFile.absolutePath)
+            .putString(KEY_CHECKSUM_URL, update.checksumUrl)
             .putBoolean(KEY_PENDING_INSTALL, false)
             .apply()
     }
 
     /** Opens the package installer for a downloaded update, if there is one. */
-    fun installDownloadedUpdate() {
+    private fun installDownloadedUpdate() {
         val apkPath = preferences().getString(KEY_APK_PATH, null)
         val apkFile = if (apkPath.isNullOrBlank()) null else File(apkPath)
 
@@ -269,7 +291,63 @@ class UpdateManager(private val context: Context) {
             return
         }
 
-        installDownloadedUpdate()
+        verifyAndInstall()
+    }
+
+    /**
+     * Hashes the downloaded APK off the main thread and only opens the
+     * installer when it matches the SHA-256 published with the release.
+     */
+    private fun verifyAndInstall() {
+        if (verifying) return
+
+        val apkPath = preferences().getString(KEY_APK_PATH, null)
+        val checksumUrl = preferences().getString(KEY_CHECKSUM_URL, null)
+        val apkFile = apkPath?.let(::File)
+
+        if (apkFile == null || !apkFile.exists() || checksumUrl.isNullOrBlank()) {
+            clearSavedUpdate()
+            return
+        }
+
+        verifying = true
+        async {
+            val expected = runCatching {
+                Checksum.parseExpectedHash(URL(checksumUrl).readText())
+            }.getOrNull()
+            val actual = runCatching { Checksum.sha256(apkFile) }.getOrNull()
+
+            sync {
+                verifying = false
+                when {
+                    expected == null || actual == null -> showVerificationUnavailable()
+                    actual == expected -> installDownloadedUpdate()
+                    else -> {
+                        apkFile.delete()
+                        clearSavedUpdate()
+                        showIntegrityError()
+                    }
+                }
+            }
+        }
+    }
+
+    private var verifying = false
+
+    private fun showIntegrityError() {
+        Toast.makeText(
+            context,
+            LocaleManager.wrap(context).getString(R.string.toast_update_integrity_failed),
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
+    private fun showVerificationUnavailable() {
+        Toast.makeText(
+            context,
+            LocaleManager.wrap(context).getString(R.string.toast_update_verify_unavailable),
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     private var hasShownInstallPermissionNotice = false
@@ -306,6 +384,7 @@ class UpdateManager(private val context: Context) {
         const val PREFERENCES_NAME = "update"
         const val KEY_DOWNLOAD_ID = "download_id"
         const val KEY_APK_PATH = "apk_path"
+        const val KEY_CHECKSUM_URL = "checksum_url"
         const val KEY_PENDING_INSTALL = "pending_install"
         const val APK_MIME_TYPE = "application/vnd.android.package-archive"
     }

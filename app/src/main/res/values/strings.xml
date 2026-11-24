@@ -68,6 +68,8 @@
     <string name="dialog_update_button_open">Show in browser</string>
     <string name="toast_update_start_download">Downloading update… The installer opens when the download finishes.</string>
     <string name="toast_update_allow_install">Allow installing updates for KurdTube, then the update installs automatically.</string>
+    <string name="toast_update_integrity_failed">Update verification failed. The downloaded file was corrupted or tampered with and was deleted. Please try again.</string>
+    <string name="toast_update_verify_unavailable">Could not verify the update download. Check your connection and try again.</string>
 
     <string name="dialog_create_playlist_title">Create Playlist</string>
     <string name="dialog_create_playlist_button_create">Create</string>
@@ -106,7 +108,7 @@
     <string name="setting_description_resetbrowser">Clear browser cache and cookies.</string>
 
     <string name="setting_title_publicproxy">Use public browser proxies</string>
-    <string name="setting_description_publicproxy">Loads a community proxy list from GitHub and routes browser traffic through its public proxies. Availability and privacy depend on those proxy operators.</string>
+    <string name="setting_description_publicproxy">Off by default. When enabled, loads a community proxy list from GitHub and routes browser traffic through public proxies. Their operators can see or modify your traffic. Enable only if you trust them.</string>
 
     <string name="proxy_loading">Preparing public proxies…</string>
     <string name="proxy_unavailable">Could not load a working proxy list.</string>

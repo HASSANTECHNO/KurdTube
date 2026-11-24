@@ -35,8 +35,11 @@ android {
     }
 
     signingConfigs {
-        release {
-            if (keystorePropertiesFile.exists()) {
+        // Configure the release key only when keystore.properties exists. This
+        // keeps `assembleRelease` usable for unsigned CI verification while
+        // still producing a signed APK in Android Studio and on release tags.
+        if (keystorePropertiesFile.exists()) {
+            release {
                 storeFile rootProject.file(keystoreProperties['storeFile'])
                 storePassword keystoreProperties['storePassword']
                 keyAlias keystoreProperties['keyAlias']
@@ -48,7 +51,9 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            signingConfig signingConfigs.release
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
