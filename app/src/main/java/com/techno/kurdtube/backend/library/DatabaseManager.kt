@@ -82,19 +82,20 @@ class DatabaseManager(context: Context, private val mediaStoreManager: MediaStor
         }
     }
 
-    /** Returns the newest downloaded file for [videoId], if the database has one. */
-    fun findSongUri(videoId: String): Uri? {
+    /** Returns all downloaded files recorded for [videoId], newest first. */
+    fun findSongUris(videoId: String): List<Uri> {
         return readLines()
             ?.asReversed()
-            ?.firstNotNullOfOrNull { line ->
+            ?.mapNotNull { line ->
                 val separator = line.lastIndexOf(' ')
-                if (separator <= 0) return@firstNotNullOfOrNull null
+                if (separator <= 0) return@mapNotNull null
 
                 val id = line.substring(separator + 1)
-                if (id != videoId) return@firstNotNullOfOrNull null
+                if (id != videoId) return@mapNotNull null
 
                 Uri.parse(line.substring(0, separator))
             }
+            ?: emptyList()
     }
 
 }

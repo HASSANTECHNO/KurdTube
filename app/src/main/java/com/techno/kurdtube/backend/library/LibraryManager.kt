@@ -48,10 +48,10 @@ class LibraryManager(context: Context) {
 
     /** Finds a still-existing library file that was downloaded from [videoId]. */
     fun findDownloadedSong(videoId: String): Song? {
-        val uri = runCatching { databaseManager.findSongUri(videoId) }
-            .getOrNull() ?: return null
-        if (!songManager.exists(uri)) return null
+        val uris = runCatching { databaseManager.findSongUris(videoId) }
+            .getOrDefault(emptyList<Uri>())
 
+        val uri = uris.firstOrNull { songManager.exists(it) } ?: return null
         return runCatching { songManager.getSingleSong(uri) }.getOrNull()
     }
 
