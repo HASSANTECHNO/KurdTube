@@ -168,6 +168,11 @@ class YoutubeDownload(
         val connection = openConnection(startOffset)
         activeConnection = connection
 
+        // A completed response is returned to the HTTP keep-alive pool, so the
+        // next range request can reuse the same socket instead of a new TLS
+        // handshake. Only aborted connections are disconnected explicitly.
+        var completed = false
+
         try {
             val responseCode = connection.responseCode
 
@@ -209,11 +214,14 @@ class YoutubeDownload(
             }
 
             val written = copy(connection.inputStream, output, startOffset, bufferSize, onProgress)
+            completed = true
 
             return written
         } finally {
             activeConnection = null
-            connection.disconnect()
+            if (!completed) {
+                runCatching { connection.disconnect() }
+            }
         }
     }
 
@@ -338,9 +346,14 @@ class YoutubeDownload(
         private const val MAX_RETRIES = 3
         private const val RETRY_DELAY_MS = 1_000L
         private const val MIN_BUFFER_SIZE = 16L * 1024L
-        private const val MAX_BUFFER_SIZE = 1024L * 1024L
-        /** Size of a single range request. Smaller chunks resume faster after a connection drop. */
-        private const val CHUNK_SIZE_BYTES = 4L * 1024L * 1024L
+        private const val MAX_BUFFER_SIZE = 2L * 1024L * 1024L
+        /**
+         * Size of a single range request. Larger chunks keep one connection open
+         * for longer and avoid a TLS handshake every few megabytes. An interrupted
+         * chunk is still resumed from the last written byte, so a dropped
+         * connection does not lose progress.
+         */
+        private const val CHUNK_SIZE_BYTES = 32L * 1024L * 1024L
         private const val USER_AGENT =
             "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0 Mobile Safari/537.36"
     }

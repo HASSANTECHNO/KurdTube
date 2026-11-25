@@ -26,8 +26,8 @@ android {
         // Android 16 (API 36) Play Protect blocks/warns when targetSdk is more
         // than 2 levels below the device API; keep this at 35+.
         targetSdk 35
-        versionCode 120
-        versionName "1.2"
+        versionCode 130
+        versionName "1.3"
 
         vectorDrawables {
             useSupportLibrary true

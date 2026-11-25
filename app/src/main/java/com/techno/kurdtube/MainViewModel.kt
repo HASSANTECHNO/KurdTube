@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -161,7 +162,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // download ==========================================
 
-    val downloadManager = YoutubeDownloadManager(libraryManager.songManager)
+    val downloadManager = YoutubeDownloadManager(getAppContext(), libraryManager.songManager)
 
     fun startDownload() {
         val downloadInfo = downloadInfoState ?: return
@@ -254,7 +255,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val updateManager = UpdateManager(getAppContext())
 
     fun hasUpdatesEnabled(): Boolean {
-        return settingManager.getSetting(Setting.UPDATES).toBoolean()
+        //A paid Bazaar install is updated through Bazaar itself. The GitHub
+        //updater would offer a free APK and bypass the purchase, so it is
+        //disabled when Bazaar installed the app.
+        return !isInstalledFromBazaar() &&
+                settingManager.getSetting(Setting.UPDATES).toBoolean()
+    }
+
+    /** True when Cafe Bazaar installed this copy of the app. */
+    @Suppress("DEPRECATION")
+    fun isInstalledFromBazaar(): Boolean {
+        val context = getAppContext()
+
+        val installerPackage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            runCatching {
+                context.packageManager
+                    .getInstallSourceInfo(context.packageName)
+                    .installingPackageName
+            }.getOrNull()
+        } else {
+            runCatching {
+                context.packageManager.getInstallerPackageName(context.packageName)
+            }.getOrNull()
+        }
+
+        return installerPackage != null && BAZAAR_PACKAGE_NAMES.contains(installerPackage)
     }
 
     // browser ==========================================
@@ -394,6 +419,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val appName = getAppContext().getString(R.string.app_name)
         val accountName = getAppContext().getString(R.string.github_account)
         return "https://github.com/$accountName/$appName"
+    }
+
+    private companion object {
+        val BAZAAR_PACKAGE_NAMES = setOf(
+            "com.farsitel.bazaar",
+            "com.farsitel.bazaar.lite"
+        )
     }
 
 }

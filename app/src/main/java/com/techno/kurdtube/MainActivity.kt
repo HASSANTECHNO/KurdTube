@@ -1,18 +1,25 @@
 package com.techno.kurdtube
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -48,6 +55,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
+            val appContext = LocalContext.current
+            val notificationPermissionLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission(),
+                onResult = { }
+            )
+
             MainTheme(darkTheme = viewModel.getTheme()) {
                 MainComponent(
                     viewModel = viewModel,
@@ -75,8 +88,11 @@ class MainActivity : ComponentActivity() {
 
                     }
                     Lifecycle.Event.ON_START -> viewModel.playerManager.load(applicationContext)
-                    //opens the installer of an update that finished downloading in the background
-                    Lifecycle.Event.ON_RESUME -> viewModel.updateManager.resumePendingInstall()
+                    //opens the installer of an update that finished downloading in the background;
+                    //a Bazaar install is updated by Bazaar itself, never by a GitHub APK
+                    Lifecycle.Event.ON_RESUME -> if (!viewModel.isInstalledFromBazaar()) {
+                        viewModel.updateManager.resumePendingInstall()
+                    }
                     Lifecycle.Event.ON_STOP -> viewModel.playerManager.unload()
                     Lifecycle.Event.ON_DESTROY -> currentBrowser = null
                     else -> {}
@@ -92,6 +108,35 @@ class MainActivity : ComponentActivity() {
                 viewModel.libraryManager.loadLibrary()
                 viewModel.libraryManager.loadPlaylists()
                 viewModel.continuePendingDownload()
+
+                // Android 13+ needs a runtime permission for the "download
+                // complete" notification. Ask once, after the required storage
+                // permissions have been handled, so the dialogs do not overlap.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val granted = ContextCompat.checkSelfPermission(
+                        appContext,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+
+                    val preferences = appContext.getSharedPreferences(
+                        PERMISSIONS_PREFERENCES,
+                        Context.MODE_PRIVATE
+                    )
+                    val alreadyRequested =
+                        preferences.getBoolean(KEY_NOTIFICATION_PERMISSION_REQUESTED, false)
+
+                    if (!granted && !alreadyRequested) {
+                        preferences.edit()
+                            .putBoolean(KEY_NOTIFICATION_PERMISSION_REQUESTED, true)
+                            .apply()
+
+                        runCatching {
+                            notificationPermissionLauncher.launch(
+                                Manifest.permission.POST_NOTIFICATIONS
+                            )
+                        }
+                    }
+                }
             }
 
             //finish listener
@@ -148,6 +193,11 @@ class MainActivity : ComponentActivity() {
             }
 
         }
+    }
+
+    private companion object {
+        const val PERMISSIONS_PREFERENCES = "permissions"
+        const val KEY_NOTIFICATION_PERMISSION_REQUESTED = "notification_permission_requested"
     }
 
 }

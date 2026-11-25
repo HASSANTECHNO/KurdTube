@@ -234,7 +234,10 @@ object Mp3Converter {
             .setMode(
                 if (channels > 1) LameBuilder.Mode.JSTEREO else LameBuilder.Mode.MONO
             )
-            .setQuality(2)
+            // LAME quality 0 is the slowest (best) psychoacoustic search, 9 the
+            // fastest. 5 is a good speed/size trade-off at a fixed 192 kbps and
+            // keeps the MP3 preparation from dominating the download time.
+            .setQuality(5)
             .setVbrMode(LameBuilder.VbrMode.VBR_OFF)
             .build()
     }

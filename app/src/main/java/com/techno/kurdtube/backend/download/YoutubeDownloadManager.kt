@@ -1,5 +1,6 @@
 package com.techno.kurdtube.backend.download
 
+import android.content.Context
 import android.net.Uri
 import com.techno.kurdtube.backend.library.Song
 import com.techno.kurdtube.backend.library.SongManager
@@ -8,7 +9,10 @@ import com.techno.kurdtube.backend.utils.async
 import com.techno.kurdtube.backend.utils.sync
 import java.util.concurrent.Future
 
-class YoutubeDownloadManager(private val songManager: SongManager) {
+class YoutubeDownloadManager(
+    private val context: Context,
+    private val songManager: SongManager
+) {
 
     private val downloadState = YoutubeDownloadState()
 
@@ -50,6 +54,12 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
         lastReportTime = 0L
 
         downloadState.prepare(download.fileName, download.contentLength)
+
+        //A foreground service keeps the process and the network transfer alive
+        //when the app is in the background, and hosts the progress/completion
+        //notifications. The notification's cancel action calls back into cancel().
+        DownloadService.cancelHandler = { cancel() }
+        DownloadService.start(context, download.fileName)
 
         downloadThread = async {
             var uri: Uri? = null
@@ -103,6 +113,7 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
                 // The bytes are on disk. Close the progress dialog now; the MP3 is
                 // prepared in the background. The manager stays busy until it is done.
                 processing = true
+                DownloadService.showPreparing()
                 sync {
                     downloadState.updateProgress(written, current.contentLength)
                     downloadState.processing = true
@@ -119,6 +130,14 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
                 lastFileUri = finishedUri
 
                 val song = songManager.getSingleSong(finishedUri)
+
+                //Post the "download complete" notification only after the MP3
+                //is ready and the song can be handed to the library.
+                DownloadService.complete(
+                    context,
+                    song.title.ifBlank { current.fileName }
+                )
+
                 sync { onSuccess(song, removedUris.toSet()) }
             } catch (error: Throwable) {
                 LOG("DOWNLOAD FAILED ${error.message}")
@@ -127,6 +146,8 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
                     sync { downloadState.fail() }
                 }
 
+                DownloadService.stop()
+
                 (lastFileUri ?: uri)?.let { failedUri ->
                     async {
                         runCatching { songManager.deleteSong(failedUri) }
@@ -134,6 +155,8 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
                 }
             } finally {
                 processing = false
+                DownloadService.cancelHandler = null
+                DownloadService.stop()
                 sync { downloadState.processing = false }
                 currentDownload = null
             }
@@ -288,7 +311,14 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
         lastReportTime = now
 
         //compose state must only be changed on the main thread
-        sync { downloadState.updateProgress(downloadedBytes, totalBytes) }
+        sync {
+            downloadState.updateProgress(downloadedBytes, totalBytes)
+            DownloadService.updateProgress(
+                downloadedBytes,
+                totalBytes,
+                downloadState.speedBytesPerSecond
+            )
+        }
     }
 
     fun cancel() {
@@ -301,6 +331,7 @@ class YoutubeDownloadManager(private val songManager: SongManager) {
 
         downloadState.active = false
         downloadState.speedBytesPerSecond = 0L
+        DownloadService.stop()
     }
 
     /** File names come from the video title, so they can contain characters MediaStore rejects. */

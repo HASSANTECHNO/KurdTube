@@ -48,6 +48,18 @@
     <string name="toast_download_preparing">داگرتن تەواو بوو؛ گۆرانی ئامادە دەکرێت…</string>
     <string name="toast_download_completed">گۆرانی زیادکرا بۆ داگرتنەکان.</string>
     <string name="toast_already_downloaded">ئەم گۆرانییە پێشتر لە داگرتنەکاندایە.</string>
+
+    <string name="notification_channel_download_progress">پێشکەوتنی داگرتن</string>
+    <string name="notification_channel_download_progress_description">پێشکەوتنی داگرتنی ئێستا پیشان دەدات.</string>
+    <string name="notification_channel_download_complete">داگرتنە تەواوبووەکان</string>
+    <string name="notification_channel_download_complete_description">ئاگادارت دەکاتەوە کاتێک گۆرانییەک دادەگیرێت.</string>
+    <string name="notification_download_title">داگرتنی گۆرانی</string>
+    <string name="notification_download_in_progress">دادەگیرێت…</string>
+    <string name="notification_download_preparing">گۆرانی ئامادە دەکرێت…</string>
+    <string name="notification_download_progress_text">%1$d%% • %2$.1f / %3$.1f مگابایت</string>
+    <string name="notification_download_completed_title">داگرتن تەواو بوو</string>
+    <string name="notification_download_completed_text">%1$s زیادکرا بۆ داگرتنەکان.</string>
+    <string name="notification_download_cancel">پاشگەزبوون</string>
     <string name="toast_download_unavailable">ئەم ڤیدیۆیە بۆ داگرتن ئامادە نەبوو. ڤی پی ئێن یان تۆڕ بگۆڕە یان ڤیدیۆیەکی تر تاقی بکەرەوە.</string>
 
     <string name="dialog_share_download_title">داگرتنی ڤیدیۆ؟</string>

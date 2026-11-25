@@ -53,6 +53,18 @@
     <string name="toast_download_unavailable">Could not prepare this video for download. Change your VPN/network or try another video.</string>
     <string name="toast_already_downloaded">This song is already in Downloads.</string>
 
+    <string name="notification_channel_download_progress">Download progress</string>
+    <string name="notification_channel_download_progress_description">Shows the progress of the current download.</string>
+    <string name="notification_channel_download_complete">Completed downloads</string>
+    <string name="notification_channel_download_complete_description">Notifies you when a song has been downloaded.</string>
+    <string name="notification_download_title">Downloading song</string>
+    <string name="notification_download_in_progress">Downloading…</string>
+    <string name="notification_download_preparing">Preparing the song…</string>
+    <string name="notification_download_progress_text">%1$d%% • %2$.1f / %3$.1f MB</string>
+    <string name="notification_download_completed_title">Download complete</string>
+    <string name="notification_download_completed_text">%1$s was added to Downloads.</string>
+    <string name="notification_download_cancel">Cancel</string>
+
     <string name="dialog_share_download_title">Download video?</string>
     <string name="dialog_button_cancel">Cancel</string>
     <string name="toast_share_no_youtube_link">No YouTube link found.</string>

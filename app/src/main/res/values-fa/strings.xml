@@ -50,6 +50,18 @@
     <string name="toast_download_unavailable">این ویدیو برای دانلود آماده نشد. VPN یا شبکه را عوض کنید یا ویدیوی دیگری امتحان کنید.</string>
     <string name="toast_already_downloaded">این آهنگ قبلاً دانلود شده است.</string>
 
+    <string name="notification_channel_download_progress">پیشرفت دانلود</string>
+    <string name="notification_channel_download_progress_description">پیشرفت دانلود جاری را نشان می‌دهد.</string>
+    <string name="notification_channel_download_complete">دانلودهای کامل‌شده</string>
+    <string name="notification_channel_download_complete_description">وقتی آهنگی دانلود شد به شما اطلاع می‌دهد.</string>
+    <string name="notification_download_title">دانلود آهنگ</string>
+    <string name="notification_download_in_progress">در حال دانلود…</string>
+    <string name="notification_download_preparing">در حال آماده‌سازی آهنگ…</string>
+    <string name="notification_download_progress_text">%1$d%% • %2$.1f / %3$.1f مگابایت</string>
+    <string name="notification_download_completed_title">دانلود کامل شد</string>
+    <string name="notification_download_completed_text">%1$s به دانلودها اضافه شد.</string>
+    <string name="notification_download_cancel">لغو</string>
+
     <string name="dialog_share_download_title">دانلود ویدیو؟</string>
     <string name="dialog_button_cancel">لغو</string>
     <string name="toast_share_no_youtube_link">لینک یوتیوب پیدا نشد.</string>

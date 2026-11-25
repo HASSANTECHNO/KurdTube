@@ -14,7 +14,7 @@ enum class Setting(
         R.string.setting_title_playsongafterdownload,
         R.string.setting_description_playsongafterdownload,
         R.string.setting_category_downloads,
-        SettingType.Switch(true)
+        SettingType.Switch(false)
     ),
 
     AUTO_DOWNLOAD(
@@ -66,7 +66,7 @@ enum class Setting(
         R.string.setting_title_kurdishonlysearch,
         R.string.setting_description_kurdishonlysearch,
         R.string.setting_category_browser,
-        SettingType.Switch(true)
+        SettingType.Switch(false)
     ),
 
     UPDATES(
